@@ -1,4 +1,4 @@
-name: Deploy backend utils to npm
+name: Deploy frontend utils to AWS S3
 
 on:
   push:
