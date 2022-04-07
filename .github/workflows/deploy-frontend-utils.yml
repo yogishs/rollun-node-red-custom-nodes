@@ -1,0 +1,12 @@
+name: Deploy backend utils to npm
+
+on:
+  push:
+    paths:
+      - 'node-red-contrib-rollun-utils/frontend-utils/**'
+    branches:
+      - master
+
+defaults:
+  run:
+    working-directory: node-red-contrib-rollun-utils/frontend-utils

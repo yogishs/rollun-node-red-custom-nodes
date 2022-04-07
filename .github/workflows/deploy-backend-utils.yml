@@ -1,17 +1,16 @@
-#name: Deploy backend utils to npm
-#
-#on:
-#  push:
-#    paths:
-#      - 'node-red-contrib-rollun-global-utils/**'
-#      - '!node-red-contrib-rollun-global-utils/global-frontend-utils.js'
-#    branches:
-#      - master
-#
-#defaults:
-#  run:
-#    working-directory: node-red-contrib-rollun-global-utils
-#
+name: Deploy backend utils to npm
+
+on:
+  push:
+    paths:
+      - 'node-red-contrib-rollun-utils/backend-utils/**'
+    branches:
+      - master
+
+defaults:
+  run:
+    working-directory: node-red-contrib-rollun-utils/backend-utils
+
 #jobs:
 #  build:
 #    runs-on: ubuntu-latest
