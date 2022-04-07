@@ -1,0 +1,12 @@
+{
+  "name": "rollun-node-red-custom-nodes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "sh start_node_red.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

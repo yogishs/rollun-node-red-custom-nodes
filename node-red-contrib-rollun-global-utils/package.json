@@ -1,0 +1,19 @@
+{
+  "name": "node-red-contrib-rollun-global-utils",
+  "version": "1.0.0",
+  "description": "",
+  "main": "global-backend-utils.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node-red",
+    "rollun",
+    "utils"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}
