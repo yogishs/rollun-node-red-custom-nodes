@@ -1,0 +1,40 @@
+{
+    "AutodistApiV062": {
+        "label": {
+            "service": "服务",
+            "method": "方法",
+            "host": "网络主机",
+            "header": "字头段",
+            "value": "值",
+            "isQuery": "查询"
+        },
+        "status": {
+            "requesting": "请求中"
+        },
+        "parameters": {
+            "avail": "GET /item/avail/{number}",
+            "authorization": "Authorization",
+            "number": "number",
+            "quantity": "quantity",
+            "calculateOrderTotal": "POST /order/calculate",
+            "body": "body",
+            "createOrder": "POST /order/create",
+            "find": "GET /order/find",
+            "orderNumbers": "orderNumbers",
+            "purchaseNumbers": "purchaseNumbers",
+            "findRange": "GET /order/find/range",
+            "dateType": "dateType",
+            "endDate": "endDate",
+            "startDate": "startDate",
+            "headers": "GET /order/headers",
+            "cancelOrderByNumber": "POST /order/number/cancel/{order}",
+            "order": "order",
+            "getOrderByNumber": "GET /order/number/{order}",
+            "trackingNumbersByOrderNumber": "GET /order/number/{order}/tracking-numbers",
+            "cancelOrderByPurchaseNumber": "POST /order/purchase-number/cancel/{order}",
+            "getOrderByPurchaseNumber": "GET /order/purchase-number/{order}",
+            "trackingNumbersByPurchaseNumber": "GET /order/purchase-number/{order}/tracking-numbers",
+            "optionalParameters": "可选项"
+        }
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "AutodistApiV062": {
+        "label": {
+            "service": "Service",
+            "method": "Methode",
+            "host": "Host",
+            "header": "Header",
+            "value": "Wert",
+            "isQuery": "Suchanfrage"
+        },
+        "status": {
+            "requesting": "Anfrage..."
+        },
+        "parameters": {
+            "avail": "GET /item/avail/{number}",
+            "authorization": "Authorization",
+            "number": "number",
+            "quantity": "quantity",
+            "calculateOrderTotal": "POST /order/calculate",
+            "body": "body",
+            "createOrder": "POST /order/create",
+            "find": "GET /order/find",
+            "orderNumbers": "orderNumbers",
+            "purchaseNumbers": "purchaseNumbers",
+            "findRange": "GET /order/find/range",
+            "dateType": "dateType",
+            "endDate": "endDate",
+            "startDate": "startDate",
+            "headers": "GET /order/headers",
+            "cancelOrderByNumber": "POST /order/number/cancel/{order}",
+            "order": "order",
+            "getOrderByNumber": "GET /order/number/{order}",
+            "trackingNumbersByOrderNumber": "GET /order/number/{order}/tracking-numbers",
+            "cancelOrderByPurchaseNumber": "POST /order/purchase-number/cancel/{order}",
+            "getOrderByPurchaseNumber": "GET /order/purchase-number/{order}",
+            "trackingNumbersByPurchaseNumber": "GET /order/purchase-number/{order}/tracking-numbers",
+            "optionalParameters": "Optionen"
+        }
+    }
+}

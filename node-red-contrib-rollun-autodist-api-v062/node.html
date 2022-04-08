@@ -1,0 +1,913 @@
+<script type="text/javascript">
+    RED.nodes.registerType('autodist-api-v062', {
+        category: 'function',
+        color: '#89bf04',
+        defaults: {
+            service: { value: "", type: "autodist-api-v062-service", required: true },
+            method: { value: "", required: true },
+            avail_authorization: { value: "" },
+            avail_authorizationType: { value: "str" },
+            avail_number: { value: "" },
+            avail_numberType: { value: "str" },
+            avail_quantity: { value: "" },
+            avail_quantityType: { value: "str" },
+            calculateOrderTotal_authorization: { value: "" },
+            calculateOrderTotal_authorizationType: { value: "str" },
+            calculateOrderTotal_body: { value: "" },
+            calculateOrderTotal_bodyType: { value: "str" },
+            createOrder_authorization: { value: "" },
+            createOrder_authorizationType: { value: "str" },
+            createOrder_body: { value: "" },
+            createOrder_bodyType: { value: "str" },
+            find_authorization: { value: "" },
+            find_authorizationType: { value: "str" },
+            find_orderNumbers: { value: "" },
+            find_orderNumbersType: { value: "str" },
+            find_purchaseNumbers: { value: "" },
+            find_purchaseNumbersType: { value: "str" },
+            findRange_authorization: { value: "" },
+            findRange_authorizationType: { value: "str" },
+            findRange_dateType: { value: "" },
+            findRange_dateTypeType: { value: "str" },
+            findRange_endDate: { value: "" },
+            findRange_endDateType: { value: "str" },
+            findRange_startDate: { value: "" },
+            findRange_startDateType: { value: "str" },
+            headers_authorization: { value: "" },
+            headers_authorizationType: { value: "str" },
+            headers_orderNumbers: { value: "" },
+            headers_orderNumbersType: { value: "str" },
+            headers_purchaseNumbers: { value: "" },
+            headers_purchaseNumbersType: { value: "str" },
+            cancelOrderByNumber_authorization: { value: "" },
+            cancelOrderByNumber_authorizationType: { value: "str" },
+            cancelOrderByNumber_order: { value: "" },
+            cancelOrderByNumber_orderType: { value: "str" },
+            getOrderByNumber_authorization: { value: "" },
+            getOrderByNumber_authorizationType: { value: "str" },
+            getOrderByNumber_order: { value: "" },
+            getOrderByNumber_orderType: { value: "str" },
+            trackingNumbersByOrderNumber_authorization: { value: "" },
+            trackingNumbersByOrderNumber_authorizationType: { value: "str" },
+            trackingNumbersByOrderNumber_order: { value: "" },
+            trackingNumbersByOrderNumber_orderType: { value: "str" },
+            cancelOrderByPurchaseNumber_authorization: { value: "" },
+            cancelOrderByPurchaseNumber_authorizationType: { value: "str" },
+            cancelOrderByPurchaseNumber_order: { value: "" },
+            cancelOrderByPurchaseNumber_orderType: { value: "str" },
+            getOrderByPurchaseNumber_authorization: { value: "" },
+            getOrderByPurchaseNumber_authorizationType: { value: "str" },
+            getOrderByPurchaseNumber_order: { value: "" },
+            getOrderByPurchaseNumber_orderType: { value: "str" },
+            trackingNumbersByPurchaseNumber_authorization: { value: "" },
+            trackingNumbersByPurchaseNumber_authorizationType: { value: "str" },
+            trackingNumbersByPurchaseNumber_order: { value: "" },
+            trackingNumbersByPurchaseNumber_orderType: { value: "str" },
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'icon.png',
+        label: function () {
+            return this.name || this.method || "autodist-api-v062";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function () {
+            var selectedMethod = $('#node-input-method option:selected');
+            if (!selectedMethod.val()) {
+                var methods = $('#node-input-method').children();
+                var firstMethod = methods.first();
+                $('#node-input-method').val(firstMethod.val());
+            }
+
+            var showParameters = function () {
+
+                $("#node-input-avail_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-avail_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#avail_authorization").hide();
+
+                $("#node-input-avail_number").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-avail_numberType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#avail_number").hide();
+
+                $("#node-input-avail_quantity").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-avail_quantityType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#avail_quantity").hide();
+
+                $("#node-input-calculateOrderTotal_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-calculateOrderTotal_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#calculateOrderTotal_authorization").hide();
+
+                $("#node-input-calculateOrderTotal_body").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-calculateOrderTotal_bodyType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#calculateOrderTotal_body").hide();
+
+                $("#node-input-createOrder_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-createOrder_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#createOrder_authorization").hide();
+
+                $("#node-input-createOrder_body").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-createOrder_bodyType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#createOrder_body").hide();
+
+                $("#node-input-find_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-find_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#find_authorization").hide();
+
+                $("#node-input-find_orderNumbers").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-find_orderNumbersType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#find_orderNumbers").hide();
+
+                $("#node-input-find_purchaseNumbers").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-find_purchaseNumbersType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#find_purchaseNumbers").hide();
+
+                $("#node-input-findRange_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-findRange_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#findRange_authorization").hide();
+
+                $("#node-input-findRange_dateType").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-findRange_dateTypeType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#findRange_dateType").hide();
+
+                $("#node-input-findRange_endDate").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-findRange_endDateType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#findRange_endDate").hide();
+
+                $("#node-input-findRange_startDate").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-findRange_startDateType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#findRange_startDate").hide();
+
+                $("#node-input-headers_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-headers_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#headers_authorization").hide();
+
+                $("#node-input-headers_orderNumbers").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-headers_orderNumbersType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#headers_orderNumbers").hide();
+
+                $("#node-input-headers_purchaseNumbers").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-headers_purchaseNumbersType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#headers_purchaseNumbers").hide();
+
+                $("#node-input-cancelOrderByNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-cancelOrderByNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#cancelOrderByNumber_authorization").hide();
+
+                $("#node-input-cancelOrderByNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-cancelOrderByNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#cancelOrderByNumber_order").hide();
+
+                $("#node-input-getOrderByNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-getOrderByNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#getOrderByNumber_authorization").hide();
+
+                $("#node-input-getOrderByNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-getOrderByNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#getOrderByNumber_order").hide();
+
+                $("#node-input-trackingNumbersByOrderNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-trackingNumbersByOrderNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#trackingNumbersByOrderNumber_authorization").hide();
+
+                $("#node-input-trackingNumbersByOrderNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-trackingNumbersByOrderNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#trackingNumbersByOrderNumber_order").hide();
+
+                $("#node-input-cancelOrderByPurchaseNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-cancelOrderByPurchaseNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#cancelOrderByPurchaseNumber_authorization").hide();
+
+                $("#node-input-cancelOrderByPurchaseNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-cancelOrderByPurchaseNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#cancelOrderByPurchaseNumber_order").hide();
+
+                $("#node-input-getOrderByPurchaseNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-getOrderByPurchaseNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#getOrderByPurchaseNumber_authorization").hide();
+
+                $("#node-input-getOrderByPurchaseNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-getOrderByPurchaseNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#getOrderByPurchaseNumber_order").hide();
+
+                $("#node-input-trackingNumbersByPurchaseNumber_authorization").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-trackingNumbersByPurchaseNumber_authorizationType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#trackingNumbersByPurchaseNumber_authorization").hide();
+
+                $("#node-input-trackingNumbersByPurchaseNumber_order").typedInput({
+                    default: 'str',
+                    typeField: $("#node-input-trackingNumbersByPurchaseNumber_orderType"),
+                    types: ['str', 'msg']
+                });
+
+                $("#trackingNumbersByPurchaseNumber_order").hide();
+
+                $("#optional-parameters").hide();
+                $("#optional-parameters-label").hide();
+                if ($("#node-input-method").val() === 'avail') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'calculateOrderTotal') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'createOrder') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'find') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'findRange') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'headers') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'cancelOrderByNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'getOrderByNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'trackingNumbersByOrderNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'cancelOrderByPurchaseNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'getOrderByPurchaseNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+                if ($("#node-input-method").val() === 'trackingNumbersByPurchaseNumber') {
+
+                    $("#optional-parameters").show();
+                    $("#optional-parameters-label").show();
+
+                }
+
+                if ($("#optional-parameters").prop('checked')) {
+                    if ($("#node-input-method").val() === 'avail') {
+
+                        $("#avail_authorization").show();
+
+                        $("#avail_number").show();
+
+                        $("#avail_quantity").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'calculateOrderTotal') {
+
+                        $("#calculateOrderTotal_authorization").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'createOrder') {
+
+                        $("#createOrder_authorization").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'find') {
+
+                        $("#find_authorization").show();
+
+                        $("#find_orderNumbers").show();
+
+                        $("#find_purchaseNumbers").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'findRange') {
+
+                        $("#findRange_authorization").show();
+
+                        $("#findRange_dateType").show();
+
+                        $("#findRange_endDate").show();
+
+                        $("#findRange_startDate").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'headers') {
+
+                        $("#headers_authorization").show();
+
+                        $("#headers_orderNumbers").show();
+
+                        $("#headers_purchaseNumbers").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'cancelOrderByNumber') {
+
+                        $("#cancelOrderByNumber_authorization").show();
+
+                        $("#cancelOrderByNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'getOrderByNumber') {
+
+                        $("#getOrderByNumber_authorization").show();
+
+                        $("#getOrderByNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'trackingNumbersByOrderNumber') {
+
+                        $("#trackingNumbersByOrderNumber_authorization").show();
+
+                        $("#trackingNumbersByOrderNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'cancelOrderByPurchaseNumber') {
+
+                        $("#cancelOrderByPurchaseNumber_authorization").show();
+
+                        $("#cancelOrderByPurchaseNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'getOrderByPurchaseNumber') {
+
+                        $("#getOrderByPurchaseNumber_authorization").show();
+
+                        $("#getOrderByPurchaseNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'trackingNumbersByPurchaseNumber') {
+
+                        $("#trackingNumbersByPurchaseNumber_authorization").show();
+
+                        $("#trackingNumbersByPurchaseNumber_order").show();
+
+                    }
+                } else {
+                    if ($("#node-input-method").val() === 'avail') {
+
+                        $("#avail_number").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'calculateOrderTotal') {
+
+                    }
+                    if ($("#node-input-method").val() === 'createOrder') {
+
+                    }
+                    if ($("#node-input-method").val() === 'find') {
+
+                    }
+                    if ($("#node-input-method").val() === 'findRange') {
+
+                    }
+                    if ($("#node-input-method").val() === 'headers') {
+
+                    }
+                    if ($("#node-input-method").val() === 'cancelOrderByNumber') {
+
+                        $("#cancelOrderByNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'getOrderByNumber') {
+
+                        $("#getOrderByNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'trackingNumbersByOrderNumber') {
+
+                        $("#trackingNumbersByOrderNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'cancelOrderByPurchaseNumber') {
+
+                        $("#cancelOrderByPurchaseNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'getOrderByPurchaseNumber') {
+
+                        $("#getOrderByPurchaseNumber_order").show();
+
+                    }
+                    if ($("#node-input-method").val() === 'trackingNumbersByPurchaseNumber') {
+
+                        $("#trackingNumbersByPurchaseNumber_order").show();
+
+                    }
+                }
+            };
+
+            $("#node-input-method").change(function () {
+                showParameters();
+            });
+
+            $("#optional-parameters").change(function () {
+                showParameters();
+            });
+
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="autodist-api-v062">
+    <div class="form-row">
+        <label for="node-input-service"><i class="fa fa-cloud"></i> <span>Service</span></label>
+        <input type="text" id="node-input-service">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-tasks"></i> <span >Method</span></label>
+        <select id="node-input-method">
+            <option value="avail" data-i18n="AutodistApiV062.parameters.avail">GET /item/avail/{number}</option>
+            <option value="calculateOrderTotal" data-i18n="AutodistApiV062.parameters.calculateOrderTotal">POST /order/calculate</option>
+            <option value="createOrder" data-i18n="AutodistApiV062.parameters.createOrder">POST /order/create</option>
+            <option value="find" data-i18n="AutodistApiV062.parameters.find">GET /order/find</option>
+            <option value="findRange" data-i18n="AutodistApiV062.parameters.findRange">GET /order/find/range</option>
+            <option value="headers" data-i18n="AutodistApiV062.parameters.headers">GET /order/headers</option>
+            <option value="cancelOrderByNumber" data-i18n="AutodistApiV062.parameters.cancelOrderByNumber">POST /order/number/cancel/{order}</option>
+            <option value="getOrderByNumber" data-i18n="AutodistApiV062.parameters.getOrderByNumber">GET /order/number/{order}</option>
+            <option value="trackingNumbersByOrderNumber" data-i18n="AutodistApiV062.parameters.trackingNumbersByOrderNumber">GET /order/number/{order}/tracking-numbers</option>
+            <option value="cancelOrderByPurchaseNumber" data-i18n="AutodistApiV062.parameters.cancelOrderByPurchaseNumber">POST /order/purchase-number/cancel/{order}</option>
+            <option value="getOrderByPurchaseNumber" data-i18n="AutodistApiV062.parameters.getOrderByPurchaseNumber">GET /order/purchase-number/{order}</option>
+            <option value="trackingNumbersByPurchaseNumber" data-i18n="AutodistApiV062.parameters.trackingNumbersByPurchaseNumber">GET /order/purchase-number/{order}/tracking-numbers</option>
+        </select>
+        &nbsp;
+        <input type="checkbox" id="optional-parameters" style="margin-left: 10px; vertical-align: text-bottom; width: auto;">
+        <label for="optional-parameters" id="optional-parameters-label" style="width: auto;"> <span data-i18n="AutodistApiV062.parameters.optionalParameters">Options</span></label>
+    </div>
+
+    <div class="form-row" id="avail_authorization">
+        <label for="node-input-avail_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-avail_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-avail_authorizationType">
+    </div>
+
+    <div class="form-row" id="avail_number">
+        <label for="node-input-avail_number"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.number">number</span></label>
+
+        <input type="text" id="node-input-avail_number" placeholder="item number" style="width:70%">
+        <input type="hidden" id="node-input-avail_numberType">
+    </div>
+
+    <div class="form-row" id="avail_quantity">
+        <label for="node-input-avail_quantity"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.quantity">quantity</span></label>
+
+        <input type="text" id="node-input-avail_quantity" placeholder="quantity of items required (optional)" style="width:70%">
+        <input type="hidden" id="node-input-avail_quantityType">
+    </div>
+
+    <div class="form-row" id="calculateOrderTotal_authorization">
+        <label for="node-input-calculateOrderTotal_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-calculateOrderTotal_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-calculateOrderTotal_authorizationType">
+    </div>
+
+    <div class="form-row" id="calculateOrderTotal_body">
+        <label for="node-input-calculateOrderTotal_body"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.body">body</span></label>
+
+        <input type="text" id="node-input-calculateOrderTotal_body" placeholder="" style="width:70%">
+        <input type="hidden" id="node-input-calculateOrderTotal_bodyType">
+    </div>
+
+    <div class="form-row" id="createOrder_authorization">
+        <label for="node-input-createOrder_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-createOrder_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-createOrder_authorizationType">
+    </div>
+
+    <div class="form-row" id="createOrder_body">
+        <label for="node-input-createOrder_body"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.body">body</span></label>
+
+        <input type="text" id="node-input-createOrder_body" placeholder="" style="width:70%">
+        <input type="hidden" id="node-input-createOrder_bodyType">
+    </div>
+
+    <div class="form-row" id="find_authorization">
+        <label for="node-input-find_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-find_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-find_authorizationType">
+    </div>
+
+    <div class="form-row" id="find_orderNumbers">
+        <label for="node-input-find_orderNumbers"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.orderNumbers">orderNumbers</span></label>
+
+        <input type="text" id="node-input-find_orderNumbers" placeholder="order numbers" style="width:70%">
+        <input type="hidden" id="node-input-find_orderNumbersType">
+    </div>
+
+    <div class="form-row" id="find_purchaseNumbers">
+        <label for="node-input-find_purchaseNumbers"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.purchaseNumbers">purchaseNumbers</span></label>
+
+        <input type="text" id="node-input-find_purchaseNumbers" placeholder="purchase order numbers" style="width:70%">
+        <input type="hidden" id="node-input-find_purchaseNumbersType">
+    </div>
+
+    <div class="form-row" id="findRange_authorization">
+        <label for="node-input-findRange_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-findRange_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-findRange_authorizationType">
+    </div>
+
+    <div class="form-row" id="findRange_dateType">
+        <label for="node-input-findRange_dateType"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.dateType">dateType</span></label>
+
+        <input type="text" id="node-input-findRange_dateType" placeholder="date type identifier <code>I</code> for invoice, <code>C</code> for created" style="width:70%">
+        <input type="hidden" id="node-input-findRange_dateTypeType">
+    </div>
+
+    <div class="form-row" id="findRange_endDate">
+        <label for="node-input-findRange_endDate"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.endDate">endDate</span></label>
+
+        <input type="text" id="node-input-findRange_endDate" placeholder="date range end" style="width:70%">
+        <input type="hidden" id="node-input-findRange_endDateType">
+    </div>
+
+    <div class="form-row" id="findRange_startDate">
+        <label for="node-input-findRange_startDate"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.startDate">startDate</span></label>
+
+        <input type="text" id="node-input-findRange_startDate" placeholder="date range start" style="width:70%">
+        <input type="hidden" id="node-input-findRange_startDateType">
+    </div>
+
+    <div class="form-row" id="headers_authorization">
+        <label for="node-input-headers_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-headers_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-headers_authorizationType">
+    </div>
+
+    <div class="form-row" id="headers_orderNumbers">
+        <label for="node-input-headers_orderNumbers"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.orderNumbers">orderNumbers</span></label>
+
+        <input type="text" id="node-input-headers_orderNumbers" placeholder="order numbers" style="width:70%">
+        <input type="hidden" id="node-input-headers_orderNumbersType">
+    </div>
+
+    <div class="form-row" id="headers_purchaseNumbers">
+        <label for="node-input-headers_purchaseNumbers"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.purchaseNumbers">purchaseNumbers</span></label>
+
+        <input type="text" id="node-input-headers_purchaseNumbers" placeholder="purchase order numbers" style="width:70%">
+        <input type="hidden" id="node-input-headers_purchaseNumbersType">
+    </div>
+
+    <div class="form-row" id="cancelOrderByNumber_authorization">
+        <label for="node-input-cancelOrderByNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-cancelOrderByNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-cancelOrderByNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="cancelOrderByNumber_order">
+        <label for="node-input-cancelOrderByNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-cancelOrderByNumber_order" placeholder="order number" style="width:70%">
+        <input type="hidden" id="node-input-cancelOrderByNumber_orderType">
+    </div>
+
+    <div class="form-row" id="getOrderByNumber_authorization">
+        <label for="node-input-getOrderByNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-getOrderByNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-getOrderByNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="getOrderByNumber_order">
+        <label for="node-input-getOrderByNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-getOrderByNumber_order" placeholder="order number" style="width:70%">
+        <input type="hidden" id="node-input-getOrderByNumber_orderType">
+    </div>
+
+    <div class="form-row" id="trackingNumbersByOrderNumber_authorization">
+        <label for="node-input-trackingNumbersByOrderNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-trackingNumbersByOrderNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-trackingNumbersByOrderNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="trackingNumbersByOrderNumber_order">
+        <label for="node-input-trackingNumbersByOrderNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-trackingNumbersByOrderNumber_order" placeholder="order number" style="width:70%">
+        <input type="hidden" id="node-input-trackingNumbersByOrderNumber_orderType">
+    </div>
+
+    <div class="form-row" id="cancelOrderByPurchaseNumber_authorization">
+        <label for="node-input-cancelOrderByPurchaseNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-cancelOrderByPurchaseNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-cancelOrderByPurchaseNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="cancelOrderByPurchaseNumber_order">
+        <label for="node-input-cancelOrderByPurchaseNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-cancelOrderByPurchaseNumber_order" placeholder="order purchase number" style="width:70%">
+        <input type="hidden" id="node-input-cancelOrderByPurchaseNumber_orderType">
+    </div>
+
+    <div class="form-row" id="getOrderByPurchaseNumber_authorization">
+        <label for="node-input-getOrderByPurchaseNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-getOrderByPurchaseNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-getOrderByPurchaseNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="getOrderByPurchaseNumber_order">
+        <label for="node-input-getOrderByPurchaseNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-getOrderByPurchaseNumber_order" placeholder="order number" style="width:70%">
+        <input type="hidden" id="node-input-getOrderByPurchaseNumber_orderType">
+    </div>
+
+    <div class="form-row" id="trackingNumbersByPurchaseNumber_authorization">
+        <label for="node-input-trackingNumbersByPurchaseNumber_authorization"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.authorization">Authorization</span></label>
+
+        <input type="text" id="node-input-trackingNumbersByPurchaseNumber_authorization" placeholder="Your API key" style="width:70%">
+        <input type="hidden" id="node-input-trackingNumbersByPurchaseNumber_authorizationType">
+    </div>
+
+    <div class="form-row" id="trackingNumbersByPurchaseNumber_order">
+        <label for="node-input-trackingNumbersByPurchaseNumber_order"><i class="fa fa-list"></i> <span data-i18n="AutodistApiV062.parameters.order">order</span></label>
+
+        <input type="text" id="node-input-trackingNumbersByPurchaseNumber_order" placeholder="purchase order number" style="width:70%">
+        <input type="hidden" id="node-input-trackingNumbersByPurchaseNumber_orderType">
+    </div>
+
+    <hr/>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="autodist-api-v062">
+
+    <a style="color: cornflowerblue" href="https://sites.google.com/view/rollun-database/it/programming">Info about Aiutodist host and API keys</a>
+
+    <p><b>Important!</b> all dates must be formatted as a number in YYYYMMDD format, example - 20200901</p>
+
+    <p><b>Possible error codes</b><br>HTTP 500 : E000 - Unspecified internal error<br>HTTP 401 : E001 - Authorization error<br>HTTP 423 : E002 - API access is disabled<br>HTTP 403 : E003 - Too Many Requests<br>HTTP 406 : E004 - HTTP is not allowed, use HTTPS instead<br>** HTTP 422 : E005 - The item number is restricted for processing<br>HTTP 400 : E100 - Validation error<br>HTTP 503 : E200 - Unspecified Gateway service error<br>HTTP 404 : E201 - Not found on the Gateway service side<br>HTTP 400 : E202 - No shipping options available</p>
+    <p><b>Methods</b></p>
+        <h3>GET /item/avail/{number}</h3>
+        <p>Availability check for item with the given number</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>number <span class="property-type">string</span></dt>
+        <dt>quantity <span class="property-type">integer</span></dt>
+        </dl>
+        <h3>POST /order/calculate</h3>
+        <p>Calculate order parameters without order creation</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>body <span class="property-type"></span></dt>
+        </dl>
+        <h3>POST /order/create</h3>
+        <p>Create order with given parameters</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>body <span class="property-type"></span></dt>
+        </dl>
+        <h3>GET /order/find</h3>
+        <p>Bulk retrieve the orders by order numbers and/or order purchase numbers</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>orderNumbers <span class="property-type">array</span></dt>
+        <dt>purchaseNumbers <span class="property-type">array</span></dt>
+        </dl>
+        <h3>GET /order/find/range</h3>
+        <p>Bulk retrieve the orders by invoice or created date range</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>dateType <span class="property-type">string</span></dt>
+        <dt>endDate <span class="property-type">string</span></dt>
+        <dt>startDate <span class="property-type">string</span></dt>
+        </dl>
+        <h3>GET /order/headers</h3>
+        <p>Bulk retrieve the order statuses by order numbers and/or order purchase numbers. Intended to track the order statuses and tracking numbers quickly.</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>orderNumbers <span class="property-type">array</span></dt>
+        <dt>purchaseNumbers <span class="property-type">array</span></dt>
+        </dl>
+        <h3>POST /order/number/cancel/{order}</h3>
+        <p>Cancel order info by order number</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+        <h3>GET /order/number/{order}</h3>
+        <p>Retrieve order info by order number</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+        <h3>GET /order/number/{order}/tracking-numbers</h3>
+        <p>Get order's tracking numbers</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+        <h3>POST /order/purchase-number/cancel/{order}</h3>
+        <p>Cancel order info by order purchase number</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+        <h3>GET /order/purchase-number/{order}</h3>
+        <p>Retrieve order info by order purchase number</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+        <h3>GET /order/purchase-number/{order}/tracking-numbers</h3>
+        <p>Get order's tracking numbers</p>
+        <dl class="message-properties">
+        <dt>Authorization <span class="property-type">string</span></dt>
+        <dt>order <span class="property-type">string</span></dt>
+        </dl>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('autodist-api-v062-service', {
+        category: 'config',
+        defaults: {
+            host: { value: "", required: true },
+
+
+            name: { value: "" },
+        },
+        credentials: {
+            temp: { type: "text" }
+        },
+        label: function () {
+            return this.name || this.host;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function () {
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="autodist-api-v062-service">
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="fa fa-globe"></i> <span data-i18n="AutodistApiV062.label.host">Host</span></label>
+        <input type="text" id="node-config-input-host" placeholder="http://localhost:1880">
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
+        <input type="text" id="node-config-input-name" data-i18n="[placeholder]node-red:common.label.name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="autodist-api-v062-service">
+    <p><b>Host</b>: URL to connect</p>
+
+</script>
