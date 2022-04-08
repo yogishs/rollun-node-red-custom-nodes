@@ -1,0 +1,60 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('deep-merge', {
+    category: 'function',
+    inputs: 1,
+    outputs: 1,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "deep-merge",
+    defaults: {
+      name: {
+        value: ""
+      },
+      first: {
+        value: 'msg|value1'
+      },
+      second: {
+        value: 'msg|value2'
+      },
+      result: {
+        value: 'msg|result'
+      }
+    },
+    label: function () {
+      return this.name || 'Deep merge';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('first', [{
+        value: "msg",
+        label: "msg."
+      }], 'First', this.first);
+      window.utils.makeTypedInput('second', [{
+        value: "msg",
+        label: "msg."
+      }], 'Second', this.second);
+      window.utils.makeTypedInput('result', [{
+        value: "msg",
+        label: "msg."
+      }], 'Result store in ', this.result);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="deep-merge">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row" id="first">
+  </div>
+  <div class="form-row" id="second">
+  </div>
+  <div class="form-row" id="result">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="deep-merge">
+  This node merges 2 <b>objects</b>, <b>arrays</b> or <b>strings</b>
+</script>

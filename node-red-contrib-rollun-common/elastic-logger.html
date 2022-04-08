@@ -1,0 +1,79 @@
+<script type="text/javascript">
+  "use strict";
+
+  RED.nodes.registerType('elastic-logger', {
+    category: 'common',
+    inputs: 1,
+    outputs: 0,
+    color: "#bfbfbf",
+    paletteLabel: "elastic-logger",
+    align: "right",
+    icon: "debug.svg",
+    defaults: {
+      name: {
+        value: ""
+      },
+      config: {
+        value: "", type: 'elastic-logger-config'
+      },
+      level: {
+        value: window.logger.log_levels.debug.name
+      },
+      messageField: {
+        value: 'msg|message'
+      },
+      contextField: {
+        value: 'msg|context'
+      }
+    },
+    label: function () {
+      return `[${this.level.toUpperCase()}] ${this.name}`;
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('messageField');
+      window.utils.makeTypedInput('contextField');
+      $('#node-input-level')
+        .html(Object.values(window.logger.log_levels).map(({name}) =>
+          `<option ${this.level === name ? 'selected' : '' } value="${name}">${name}</option>`
+        ).join('\n'))
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="elastic-logger">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config">Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-messageField">Message field</label>
+    <input type="hidden" id="node-input-messageField">
+    <input type="text" id="node-input-messageField-view">
+  </div>
+  <div class="form-row">
+    <h5>Leave context field empty, to log full msg</h5>
+    <label for="node-input-messageField">Context field</label>
+    <input type="hidden" id="node-input-contextField">
+    <input type="text" id="node-input-contextField-view">
+  </div>
+  <h4>Log level in <code>msg.level</code> has more priority</h4>
+  <div class="form-row">
+    <label for="node-input-level">Log Level</label>
+    <select id="node-input-level">
+    </select>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="elastic-logger">
+  Simple node for logging to elasticsearch through logstash <br/>
+  Current server time (UTC by default) will be used as a log entry time <br/>
+  <h4>Config</h4>
+  <ul>
+    <li><code>Logstash host</code> - host name for logstash (without protocol name e.g. `logstash`)</li>
+    <li><code>Logstash port</code> - udp port of logstash instance</li>
+  </ul>
+</script>

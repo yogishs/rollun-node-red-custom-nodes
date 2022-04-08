@@ -1,0 +1,61 @@
+<script type="text/javascript">
+  window.logger = {
+    log_levels: {
+      debug: {value: 0, name: 'debug', description: ''},
+      notice: {value: 1, name: 'notice', description: ''},
+      info: {value: 2, name: 'info', description: ''},
+      warning: {value: 3, name: 'warning', description: ''},
+      error: {value: 4, name: 'error', description: ''},
+      alert: {value: 5, name: 'alert', description: ''},
+      critical: {value: 6, name: 'critical', description: ''},
+      emergency: {value: 7, name: 'emergency', description: ''},
+    }
+  }
+  RED.nodes.registerType('elastic-logger-config', {
+    category: 'config',
+    defaults: {
+      logstashHost: {value: "logstash", required: true},
+      logstashPort: {value: "5044", required: true},
+      minLevel: {value: window.logger.log_levels.debug.name},
+      name: {value: ''}
+    },
+    label: function () {
+      return this.name || `[${this.logstashHost}] min level - ${this.minLevel}`;
+    },
+    oneditprepare: function () {
+      $('#node-config-input-minLevel')
+        .html(Object.values(window.logger.log_levels).map(({name, description}) =>
+          `<option ${this.minLevel === name ? 'selected' : ''} value="${name}">${name}</option>`
+        ).join('\n'))
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="elastic-logger-config">
+  <div class="form-row">
+    <label for="node-config-input-logstashHost"><i class="icon-bookmark"></i> Logstash Host</label>
+    <input type="text" id="node-config-input-logstashHost">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-logstashPort"><i class="icon-bookmark"></i> Logstash Port</label>
+    <input type="number" id="node-config-input-logstashPort">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>
+    <input type="text" id="node-config-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-minLevel"><i class="icon-bookmark"></i> Minimum log level</label>
+    <select id="node-config-input-minLevel"></select>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="elastic-logger">
+  Simple node for logging to elasticsearch through logstash <br/>
+  Current server time (UTC by default) will be used as a log entry time <br/>
+  <h4>Config</h4>
+  <ul>
+    <li><code>Logstash host</code> - host name for logstash (without protocol name e.g. `logstash`)</li>
+    <li><code>Logstash port</code> - udp port of logstash instance</li>
+  </ul>
+</script>

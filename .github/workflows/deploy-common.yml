@@ -1,15 +1,15 @@
-name: Deploy backend utils to npm
+name: Deploy common nodes to npm
 
 on:
   push:
     paths:
-      - 'node-red-contrib-rollun-utils/backend-utils/**'
+      - 'node-red-contrib-rollun-common/**'
     branches:
       - master
 
 defaults:
   run:
-    working-directory: node-red-contrib-rollun-utils/backend-utils
+    working-directory: node-red-contrib-rollun-common
 
 jobs:
   build:

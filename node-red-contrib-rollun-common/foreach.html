@@ -1,0 +1,469 @@
+<script type="text/javascript">
+  "use strict";
+
+  let treeList;
+
+  function saveLink(node, treeList) {
+    const flows = treeList.treeList('data');
+    let link = '';
+    for (const flow of flows) {
+      if (flow.children) {
+        for (const currNode of flow.children) {
+          if (currNode.selected) {
+            link = currNode.id;
+            break;
+          }
+        }
+      }
+      if (link) {
+        break;
+      }
+    }
+
+    node.link = link;
+  }
+
+  function lookUpLinks(flowMap, candidateNodes, node) {
+    for (const n of candidateNodes) {
+      if (flowMap[n.z]) {
+        const isSelected = node.link
+          // use node.link, if exists
+          ? node.link === n.id
+          // otherwise look for node with the same name
+          // do not match, if node name is empty.
+          : node.name && (n.name === node.name)
+
+        flowMap[n.z].children.push({
+          id: n.id,
+          node: n,
+          label: n.name || n.id,
+          selected: isSelected,
+          checkbox: true
+        })
+      }
+    }
+  }
+
+  function forEachStartEditPrepare() {
+
+    const node = this;
+
+    window.utils.makeTypedInput('inputField', [{
+      value: "msg",
+      label: "msg."
+    }], undefined, node.inputField);
+
+    window.utils.makeTypedInput('outputField', [{
+      value: "msg",
+      label: "msg."
+    }], undefined, node.outputField);
+
+    const activeSubflow = RED.nodes.subflow(node.z);
+
+    treeList = $("<div>")
+      .css({width: "100%", height: "100%"})
+      .appendTo(".node-input-link-row")
+      .treeList({})
+      .on('treelistitemmouseover', function (e, item) {
+        if (item.node) {
+          item.node.highlighted = true;
+          item.node.dirty = true;
+          RED.view.redraw();
+        }
+      })
+      .on('treelistitemmouseout', function (e, item) {
+        if (item.node) {
+          item.node.highlighted = false;
+          item.node.dirty = true;
+          RED.view.redraw();
+        }
+      })
+
+    const candidateNodes = RED.nodes.filterNodes({type: 'foreach-end'});
+
+
+    const search = $("#node-input-link-target-filter").searchBox({
+      style: "compact",
+      delay: 300,
+      change: function () {
+        const val = $(this).val().trim().toLowerCase();
+        if (val === "") {
+          treeList.treeList("filter", null);
+          search.searchBox("count", "");
+        } else {
+          const count = treeList.treeList("filter", function (item) {
+            return item.label.toLowerCase().indexOf(val) > -1 || (item.node && item.node.type.toLowerCase().indexOf(val) > -1)
+          });
+          search.searchBox("count", count + " / " + candidateNodes.length);
+        }
+      }
+    });
+
+    let flows = [];
+    let flowMap = {};
+
+    if (activeSubflow) {
+      flowMap[activeSubflow.id] = {
+        id: activeSubflow.id,
+        class: 'red-ui-palette-header',
+        label: "Subflow : " + (activeSubflow.name || activeSubflow.id),
+        expanded: true,
+        children: []
+      };
+      flows.push(flowMap[activeSubflow.id])
+    } else {
+      RED.nodes.eachWorkspace(function (ws) {
+        flowMap[ws.id] = {
+          id: ws.id,
+          class: 'red-ui-palette-header',
+          label: (ws.label || ws.id) + (node.z === ws.id ? " *" : ""),
+          expanded: true,
+          children: []
+        };
+        flows.push(flowMap[ws.id])
+      })
+    }
+
+    lookUpLinks(flowMap, candidateNodes, node);
+
+    flows = flows.filter(function (f) {
+      return f.children.length > 0
+    });
+
+    treeList.treeList('data', flows);
+    setTimeout(function () {
+      treeList.treeList('show', node.z);
+    }, 100);
+  }
+
+  RED.nodes.registerType('foreach-start', {
+    category: 'function',
+    inputs: 1,
+    outputs: 2,
+    color: "#c2f4ff",
+    icon: "icons/node-red/template.svg",
+    paletteLabel: "foreach-start",
+    defaults: {
+      name: {
+        value: ""
+      },
+      inputField: {
+        value: 'msg|payload'
+      },
+      outputField: {
+        value: 'msg|payload'
+      },
+      link: {
+        value: ""
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || 'foreach start';
+    },
+    oneditprepare: forEachStartEditPrepare,
+    oneditsave: function () {
+      const node = this;
+      const {noderedTreeList} = treeList.data();
+      const selectedAmount = noderedTreeList && noderedTreeList._selected
+        ? noderedTreeList._selected.size
+        : 0;
+      if (selectedAmount > 1) {
+        alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
+      }
+      saveLink(node, treeList);
+    }
+  });
+
+  RED.nodes.registerType('foreach-end', {
+    category: 'function',
+    inputs: 1,
+    outputs: 2,
+    color: "#c2f4ff",
+    icon: "icons/node-red/template.svg",
+    paletteLabel: "foreach-end",
+    defaults: {
+      name: {
+        value: ""
+      },
+      inputField: {
+        value: 'msg|payload'
+      },
+      outputField: {
+        value: 'msg|payload'
+      },
+      filterEmpty: {
+        value: true
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'break',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || 'foreach end';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('inputField', [{
+        value: "msg",
+        label: "msg."
+      }], undefined, this.inputField);
+
+      window.utils.makeTypedInput('outputField', [{
+        value: "msg",
+        label: "msg."
+      }], undefined, this.outputField);
+    }
+  });
+
+  let breakTreeList;
+  RED.nodes.registerType('foreach-break', {
+    category: 'function',
+    inputs: 1,
+    outputs: 0,
+    color: "#c2f4ff",
+    icon: "icons/node-red/template.svg",
+    paletteLabel: "foreach-break",
+    defaults: {
+      name: {
+        value: ""
+      },
+      link: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'foreach break';
+    },
+    oneditprepare: function () {
+
+      const node = this;
+      const activeSubflow = RED.nodes.subflow(node.z);
+
+      breakTreeList = $("<div>")
+        .css({width: "100%", height: "100%"})
+        .appendTo(".node-input-link-row")
+        .treeList({})
+        .on('treelistitemmouseover', function (e, item) {
+          if (item.node) {
+            item.node.highlighted = true;
+            item.node.dirty = true;
+            RED.view.redraw();
+          }
+        })
+        .on('treelistitemmouseout', function (e, item) {
+          if (item.node) {
+            item.node.highlighted = false;
+            item.node.dirty = true;
+            RED.view.redraw();
+          }
+        });
+
+      const candidateNodes = RED.nodes.filterNodes({type: 'foreach-end'});
+
+
+      const search = $("#node-input-link-target-filter").searchBox({
+        style: "compact",
+        delay: 300,
+        change: function () {
+          const val = $(this).val().trim().toLowerCase();
+          if (val === "") {
+            treeList.breakTreeList("filter", null);
+            search.searchBox("count", "");
+          } else {
+            const count = treeList.treeList("filter", function (item) {
+              return item.label.toLowerCase().indexOf(val) > -1 || (item.node && item.node.type.toLowerCase().indexOf(val) > -1)
+            });
+            search.searchBox("count", count + " / " + candidateNodes.length);
+          }
+        }
+      });
+
+      let flows = [];
+      let flowMap = {};
+
+      if (activeSubflow) {
+        flowMap[activeSubflow.id] = {
+          id: activeSubflow.id,
+          class: 'red-ui-palette-header',
+          label: "Subflow : " + (activeSubflow.name || activeSubflow.id),
+          expanded: true,
+          children: []
+        };
+        flows.push(flowMap[activeSubflow.id])
+      } else {
+        RED.nodes.eachWorkspace(function (ws) {
+          flowMap[ws.id] = {
+            id: ws.id,
+            class: 'red-ui-palette-header',
+            label: (ws.label || ws.id) + (node.z === ws.id ? " *" : ""),
+            expanded: true,
+            children: []
+          };
+          flows.push(flowMap[ws.id])
+        })
+      }
+
+      lookUpLinks(flowMap, candidateNodes, node)
+
+      flows = flows.filter(function (f) {
+        return f.children.length > 0
+      });
+
+      breakTreeList.treeList('data', flows);
+      setTimeout(function () {
+        breakTreeList.treeList('show', node.z);
+      }, 100);
+    },
+    oneditsave: function () {
+      const node = this;
+      const {noderedTreeList} = breakTreeList.data();
+      const selectedAmount = noderedTreeList && noderedTreeList._selected
+        ? noderedTreeList._selected.size
+        : 0;
+      if (selectedAmount > 1) {
+        alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
+      }
+      saveLink(node, breakTreeList);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="foreach-start">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row" id="inputField"></div>
+    <div class="form-row" id="outputField"></div>
+    <h5>You can select only one <b>foreach-end</b> node.</h5>
+    <div style="position:relative; height: 30px; text-align: right;">
+        <div style="display:inline-block"><input type="text" id="node-input-link-target-filter"></div>
+    </div>
+    <div style="height: 500px" class="form-row node-input-link-row"></div>
+</script>
+
+<script type="text/html" data-template-name="foreach-end">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row" id="inputField"></div>
+    <div class="form-row" id="outputField"></div>
+    <div class="">
+        <span> Filter empty (all <code>null</code> or <code>undefined</code> values in <b>Input field</b> in foreach-end will be removed from result)</span>
+        <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-filterEmpty">
+    </div>
+</script>
+
+<script type="text/html" data-template-name="foreach-break">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <h5>You can select only one <b>foreach-end</b> node.</h5>
+    <div style="position:relative; height: 30px; text-align: right;">
+        <div style="display:inline-block"><input type="text" id="node-input-link-target-filter"></div>
+    </div>
+    <div style="height: 500px" class="form-row node-input-link-row"></div>
+</script>
+
+<script type="text/html" data-help-name="foreach-start">
+    Foreach node
+    It consists of 2 nodes:
+    <ol>
+        <li>foreach-start</li>
+        <li>foreach-end</li>
+    </ol>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
+
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
+
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
+    <ol>
+        <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
+        <li><b>size</b> - total size of array/object</li>
+        <li><b>type</b> - array or object</li>
+    </ol>
+
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
+
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
+</script>
+
+<script type="text/html" data-help-name="foreach-end">
+    Foreach node
+    It consists of 2 nodes:
+    <ol>
+        <li>foreach-start</li>
+        <li>foreach-end</li>
+    </ol>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
+
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
+
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
+    <ol>
+        <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
+        <li><b>size</b> - total size of array/object</li>
+        <li><b>type</b> - array or object</li>
+    </ol>
+
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
+
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
+</script>
+
+<script type="text/html" data-help-name="foreach-break">
+    Foreach node
+    It consists of 2 nodes:
+    <ol>
+        <li>foreach-start</li>
+        <li>foreach-end</li>
+    </ol>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
+
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
+
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
+    <ol>
+        <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
+        <li><b>size</b> - total size of array/object</li>
+        <li><b>type</b> - array or object</li>
+    </ol>
+
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
+
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
+</script>
