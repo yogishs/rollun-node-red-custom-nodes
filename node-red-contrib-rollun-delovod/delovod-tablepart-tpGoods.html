@@ -1,0 +1,104 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-tablepart-tpGoods', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 1,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-tablepart-tpGoods",
+    defaults: {
+      // config: {
+      //   value: "", type: "delovod-config",
+      //   required: true
+      // },
+      good: {
+        value: 'msg|payload.good', type: '',
+      },
+      price: {
+        value: 'msg|payload.price',
+      },
+      qty: {
+        value: 'msg|payload.qty',
+      },
+      goodType: {
+        value: 'const|1004000000000014',
+      },
+      accGood: {
+        value: '',
+      },
+      unit: {
+        value: 'const|1103600000000001',
+      },
+      analytics1: {
+        value: '',
+      },
+      analytics2: {
+        value: '',
+      },
+      analytics3: {
+        value: '',
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod format tpGoods';
+    },
+    oneditprepare: function () {
+      const node = this;
+
+      const appendInput = (container, id, name, value = '') => {
+        container.append($.parseHTML(`
+          <div class="form-row">
+            <label for="node-input-${id}-view">${name}</label>
+            <input type="hidden" value="${value}" id="node-input-${id}">
+            <input type="text" id="node-input-${id}-view">
+        </div>
+        `))
+        window.utils.makeTypedInput(id);
+      }
+      const required = $('#required')
+      const appendToRequired = (...args) => appendInput(required, ...args);
+      appendToRequired('good', 'Good (delovod good id)', node.good);
+      appendToRequired('qty', 'Qty', node.qty);
+      appendToRequired('price', 'Price', node.price);
+      const requiredWithDefault = $('#required-with-default');
+      const appendToRequiredWithDef = (...args) => appendInput(requiredWithDefault, ...args);
+      appendToRequiredWithDef('goodType', 'Good type (default - Товар)', node.goodType);
+      appendToRequiredWithDef('accGood', 'accGood (good type for new DB)', node.accGood);
+      appendToRequiredWithDef('unit', 'Unit (default - ШТ)', node.unit);
+      const optionalFields = $('#optional-fields');
+      const appendToOptionalFields = (...args) => appendInput(optionalFields, ...args);
+      appendToOptionalFields('analytics1', 'Analytics1', node.analytics1);
+      appendToOptionalFields('analytics2', 'Analytics2', node.analytics2);
+      appendToOptionalFields('analytics3', 'Analytics3', node.analytics3);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-tablepart-tpGoods">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <h3>Required fields:</h3>
+  <div id="required">
+  </div>
+  <h3>Required fields with default values:</h3>
+  <div id="required-with-default">
+  </div>
+  <h3>Optional fields:</h3>
+  <div id="optional-fields">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-tablepart-tpGoods">
+  This node formats Your good to table part tpGoods
+
+  <h4>IMPORTANT</h4>
+  <b>Use <b>accGood</b> instead of <b>Good type</b> in new (v10) database</b>
+  accGood example - <code>1119000000001016</code> Goods
+</script>

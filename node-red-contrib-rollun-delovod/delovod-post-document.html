@@ -1,0 +1,47 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-post-document', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-post-document",
+    currentDocument: null,
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      docId: {
+        value: "msg|payload.id",
+      },
+      name: {
+        value: ''
+      }
+    },
+    label: function () {
+      return this.name || 'Post document';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('docId', undefined, `Document ID`, this.docId);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-post-document">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row" id="docId"></div>
+</script>
+
+<script type="text/html" data-help-name="delovod-post-document">
+  <h5>A simple node, to post documents</h5>
+</script>

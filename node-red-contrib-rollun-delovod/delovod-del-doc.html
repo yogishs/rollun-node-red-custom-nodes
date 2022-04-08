@@ -1,0 +1,68 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-del-doc', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-del-doc",
+    currentDocument: null,
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      docId: {
+        value: "msg|payload",
+      },
+      name: {
+        value: ""
+      },
+      forceDelete: {
+        value: true
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod del doc';
+    },
+    oneditprepare: function () {
+      const node = this;
+      window.utils.makeTypedInput('docId', undefined, 'Doc ID', node.docId)
+    }
+  });
+
+</script>
+
+<script type="text/html" data-template-name="delovod-del-doc">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row" id="docId">
+  </div>
+  <div class="">
+    <span>Also delete document</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-forceDelete">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-del-doc">
+  <h4>This node can mark document as `to delete` and also can delete it</h4>
+  <ul>
+    <li><code>Doc ID</code> - id of delovod document</li>
+    <li><code>Also delete document</code>
+      <ul>
+        <li><code>if checked</code> - document will be also deleted from delovod, but this action requires extra
+          privileges on Your API key
+        </li>
+        <li><code>if not checked</code> - document will be marked as `to delete`</li>
+      </ul>
+    </li>
+  </ul>
+</script>

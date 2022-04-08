@@ -1,0 +1,181 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-create-item', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-create-item",
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      docType: {
+        value: window.delovod.documents[0].value,
+        required: true
+      },
+      docId: {
+        value: 'const|'
+      },
+      docData: {
+        value: "{}"
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Create delovod document';
+    },
+    oneditprepare: function () {
+      const node = this;
+
+      window.utils.makeTypedInput('docId', undefined, 'Doc ID, set it, to update existing document', node.docId);
+
+      const textarea = $('#node-input-docData');
+      const setDataValue = newData => typeof newData === 'string'
+        ? newData
+        : textarea.val(JSON.stringify(newData))
+      const setPropertyValue = (prop, val) => {
+        const data = getDataValue();
+
+
+        if (!val) {
+          delete data[prop]
+        } else {
+          data[prop] = val;
+        }
+
+        setDataValue(data);
+      };
+      const getDataValue = () => JSON.parse(textarea.val());
+
+      const buildDocumentForm = (docType, initData = {}) => {
+        const document = window.delovod.documents.find(doc => doc.value === docType);
+        const inputs = document.fields.header
+          .filter(({value}) => !(value === 'id' || value === 'number' || value === 'posted'))
+          .map(({name, value, type}) => {
+            const typePopUp = `field: [${value}] of type [${type.isPrimitive ? type.name : type.name.join(', ')}]`;
+            const isCatalogType = !type.isPrimitive && !!type.name.find(name => name.includes('catalog'));
+            let input
+            if (type.isPrimitive || !isCatalogType) {
+              input = $('<input>')
+                .attr('type', 'text')
+                .attr('id', 'input-' + value)
+            } else {
+              const options = window.delovod.catalog.filter(item => type.name.includes(item.value));
+              if (options.length === 0 || options[0].options.length === 0) {
+                input = $('<input>')
+                  .attr('type', 'text')
+                  .attr('id', 'input-' + value)
+              } else {
+                const [, initValue = ''] = (initData[value] || '').split('|')
+
+                input = $('<select>')
+                  .css('min-width', '300px')
+                  .attr('id', 'select-' + value)
+                  .html($.parseHTML(options.map((option) =>
+                    [`<option value="">Empty</option>`]
+                      .concat(option.options.map(({name, value}) => `<option ${value === initValue ? 'selected' : ''} value="${value}">${option.name} ${name} - (${value})</option>`))
+                      .join('\n')
+                  ).join('\n')))
+                  .attr('value', initValue)
+                  .change(e => {
+                    if (!e.target.value) {
+                      setPropertyValue(value);
+                    } else {
+                      setPropertyValue(value, `const|${e.target.value}`)
+                    }
+                  });
+              }
+            }
+
+            return $('<div>')
+              .css('margin-bottom', '10px')
+              .append($.parseHTML(`<label style="min-width: 200px" title="${typePopUp}" for="${value}">${name} (${value})</label>`))
+              .append(input);
+          });
+        $('#document-create-form')
+          .html(`
+            <h3>Простая нода для создания(обновления) документов в delovod</h3>
+            <h4>Все поля находящиеся в <code>msg.header</code> считаются более приоритетными, чем то, что вы настраиваете в натройках ноды</h4>
+            <h4>Табличная часть предполагает наличие следующих полей - ${Object.keys(document.fields).filter(name => name !== 'header').join(', ')},
+            которые должны быть переданы в эту ноду в <code>msg.tableParts</code>
+            </h4>
+          `)
+          .append(...inputs)
+        for (const {value} of document.fields.header) {
+          const [initType = '', initValue = ''] = (initData[value] || '').split('|');
+          //
+          const types = [{
+            value: "msg",
+            label: "msg."
+          }, {
+            value: "const",
+            label: "constant"
+          }];
+          $(`#input-${value}`)
+            .typedInput({types: types})
+            .typedInput('value', initValue)
+            .typedInput('type', initType)
+            .on('change', (e, type) => {
+              if (type === true) return;
+              setPropertyValue(value, `${type}|${e.target.value}`);
+            });
+        }
+      }
+
+      // prepare doc type select
+      $('#node-input-docType')
+        .html(window.delovod.documents.map(doc => `<option value="${doc.value}">${doc.name} (${doc.value})</option>`).join('\n'))
+        .val(node.docType)
+        .on('change', e => {
+          const data = getDataValue();
+          const document = window.delovod.documents.find(doc => doc.value === e.target.value);
+          for (const key in data) {
+            if (!document.fields.header.find(field => field.value === key)) {
+              delete data[key];
+            }
+          }
+          buildDocumentForm(e.target.value, data);
+          setDataValue(data);
+        });
+      buildDocumentForm(node.docType, JSON.parse(node.docData));
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-create-item">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-docType"><i class="fa fa-server"></i> Document type</label>
+    <select id="node-input-docType">
+    </select>
+  </div>
+  <div class="form-row" id="docId"></div>
+  <div class="form-row" id="document-create-form">
+
+  </div>
+  <textarea id="node-input-docData" style="display:none;"></textarea>
+</script>
+
+<script type="text/html" data-help-name="delovod-create-item">
+  <h4>Create document in delovod</h4>
+  This node formats header for delovod document, table part expected to be in <code>msg.tableParts</code><br/>
+  If You set Doc ID, instead of creating document, node will update existing document with Your values
+  <ul>
+    <li>In case of success msg will be send to 2 output with id of new (updated) document</li>
+    <li>In case of error msg will be send to 1 output with <b>error</b> in <b>payload</b> and sent document in <b>sentDocument</b>
+    </li>
+  </ul>
+</script>

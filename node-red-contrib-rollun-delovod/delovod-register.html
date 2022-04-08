@@ -1,0 +1,191 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-register', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-register",
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      register: {
+        value: window.delovod.registers[0].value,
+        required: true
+      },
+      date: {
+        value: 'msg|payload.date'
+      },
+      'name': {
+        value: ""
+      },
+      conditions: {
+        value: "[]"
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod register request';
+    },
+    oneditprepare: function () {
+      const node = this;
+      window.utils.makeTypedInput('date', undefined, undefined, this.date);
+
+      const getIndex = e => Array.from($(e.target).closest("li").parent().children().toArray()).indexOf($(e.target).closest("li").get(0));
+
+      let currRegister = node.register;
+
+      let isFirstSelectRender = true
+      $('#node-input-register')
+        .html(window.delovod.registers.map(({name, value}) =>
+          `<option value="${value}" >${value.replace('Registers.', ' ')} ${name}</option>`
+        ).join('\n'))
+        .val(node.register)
+        .on('change', e => {
+
+          currRegister = e.target.value
+          if (!isFirstSelectRender) {
+            $("ol.list").editableList('empty');
+            $('#node-input-conditions').val('[]')
+          }
+          isFirstSelectRender = false
+        })
+
+      $("ol.list").editableList({
+        addItem: (row, index, _data) => {
+
+          const {operators} = window.delovod
+          const register = window.delovod.registers.find(register => register.value === currRegister);
+
+          const defaultData = {
+            alias: Object.values(register.fields).flat()[0].value,
+            operator: operators[0].value,
+            value: 'msg.payload.value'
+          };
+
+          if (Object.keys(_data).length === 0) {
+            const oldValue = $('#node-input-conditions').val();
+            const newVal = JSON.parse(oldValue).concat(defaultData);
+            $('#node-input-conditions').val(JSON.stringify(newVal));
+          }
+          const data = Object.keys(_data).length > 0
+            ? _data
+            : defaultData
+
+          const handleConditionChange = (attr, newVal, idx) => {
+            let newData = JSON.parse($('#node-input-conditions').val());
+            newData[idx - 1] = {
+              ...newData[idx - 1],
+              [attr]: newVal
+            }
+            $('#node-input-conditions').val(JSON.stringify(newData));
+          };
+
+          const optionsFactory = (options) =>
+            options.map(({name, value}) => `<option value="${value}">${name} (${value})</option>`).join('\n');
+
+
+          const selectField = $('<select>').css('margin-top', '10px')
+            .attr('id', 'select-document-type-condition-#' + index)
+            .change(e => handleConditionChange('alias', e.target.value, getIndex(e)))
+            .css('margin-right', '5px')
+            .html($.parseHTML(optionsFactory(Object.values(register.fields).flat())))
+
+          const selectOperator = $('<select>')
+            .css('width', '100px')
+            .css('margin-top', '10px').css('margin-right', '5px')
+            .change(e => handleConditionChange('operator', e.target.value, getIndex(e)))
+            .html($.parseHTML(optionsFactory(operators)))
+
+          const valueInput = $('<input>')
+            .css('margin-top', '10px')
+            .css('margin-right', '20px')
+            .attr('type', 'text')
+            .attr('placeholder', 'if starts with msg. - it is property on msg, otherwise - constant value')
+            .change(e => handleConditionChange('value', e.target.value, getIndex(e)))
+
+          const deleteBtn = $('<a>')
+            .attr('href', '#')
+            .addClass('red-ui-editableList-item-remove red-ui-button red-ui-button-small')
+            .append($('<i>').addClass('fa fa-remove'))
+            .click(e => {
+              const index = getIndex(e);
+              const cond = $(`#node-input-rule-container li`).get(index)
+              cond && cond.remove()
+              const oldVal = JSON.parse($('#node-input-conditions').val());
+
+              $('#node-input-conditions').val(JSON.stringify(oldVal.filter((_, idx) => idx !== index - 1)));
+            })
+
+          selectField.val(data.alias)
+          selectOperator.val(data.operator)
+          valueInput.val(data.value)
+
+          const container = $('<div>')
+            .addClass('form-row')
+            .css('display', 'flex')
+            .append(selectField)
+            .append(selectOperator)
+            .append(valueInput)
+            .append(deleteBtn)
+          $(row).html(container);
+        },
+        height: 450,
+        scrollOnAdd: true,
+        sortable: true,
+      });
+      JSON
+        .parse(node.conditions)
+        .forEach(cond => $('ol.list').editableList('addItem', cond));
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-register">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-register"> Register Type</label>
+    <select id="node-input-register">
+    </select>
+  </div>
+  <h5>Date format: <b>2015-01-01 00:00:00</b> or just date <b>2015-01-01</b></h5>
+  <div class="form-row" id="date">
+  </div>
+  <input type="hidden" id="node-input-conditions">
+  <h5>Search conditions, add conditions with an empty value, to force field in output</h5>
+  values like <b>msg.payload</b> will be treated as values from <b>msg</b>
+  <div class="form-row node-input-rule-container-row">
+    <div class="red-ui-editableList">
+      <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
+        <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
+            style="min-height: 0px; min-width: 450px; height: auto;">
+          <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-register">
+  <h5>This node requests registers <a href="https://help.delovod.ua/ru/mdata/balanceRegisters.goods"
+                                      target="_blank">doc</a></h5>
+  config:
+  <ul>
+    <li><b>Register type</b> - type of requested register, see doc</li>
+    <li><b>Date</b> - can be empty</li>
+    <li><b>Search conditions</b> - values in conditions can be from <b>msg</b> like - <b>msg.payload.value</b>. If value
+      is empty, condition will not be searched for, but will be in response fields.
+    </li>
+  </ul>
+</script>

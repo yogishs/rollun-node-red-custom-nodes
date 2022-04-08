@@ -1,4 +1,4 @@
-node-red-contrib-autodist-api-v062
+node-red-contrib-rollun-autodist-api-v062
 ================
 
 Node-RED node for autodist-api-v062
@@ -8,10 +8,10 @@ Node-RED node for autodist-api-v062
 ## Install
 
 To install the stable version use the `Menu - Manage palette - Install` 
-option and search for node-red-contrib-autodist-api-v062, or run the following 
+option and search for node-red-contrib-rollun-autodist-api-v062, or run the following 
 command in your Node-RED user directory, typically `~/.node-red`
 
-    npm install node-red-contrib-autodist-api-v062
+    npm install node-red-contrib-rollun-autodist-api-v062
 
 ## Usage
 

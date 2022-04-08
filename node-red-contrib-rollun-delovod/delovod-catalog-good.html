@@ -1,0 +1,133 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-catalog-good', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-catalog-good",
+    defaults: {
+      config: {
+        value: "",
+        type: "delovod-config",
+        required: true
+      },
+      itemName: {
+        value: "msg|payload.itemName"
+      },
+      parent: {
+        value: "const|1100300000001001"
+      },
+      searchByParent: {
+        value: false
+      },
+      mainUnit: {
+        value: "const|1103600000000001"
+      },
+      goodType: {
+        value: "const|1004000000000014"
+      },
+      goodChar: {
+        value: "msg|payload.goodChar"
+      },
+      accPolicy: {
+        value: "const|"
+      },
+      name: {
+        value: ""
+      },
+      addStorageToNewGood: {
+        value: true
+      },
+      createGoodIfNotFound: {
+        value: false
+      },
+      getFirstGoodIfFoundMore: {
+        value: false
+      },
+      createGoodCharIfNotFound: {
+        value: false
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod good';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('itemName', undefined, undefined, this.itemName);
+      window.utils.makeTypedInput('parent', undefined, 'Group (parent)', this.parent);
+      window.utils.makeTypedInput('mainUnit', undefined, 'Unit (mainUnit)', this.mainUnit);
+      window.utils.makeTypedInput('goodType', undefined, 'Type (goodType)', this.goodType);
+      window.utils.makeTypedInput('accPolicy', undefined, 'Type (accPolicy)', this.accPolicy);
+      window.utils.makeTypedInput('goodChar', undefined, `goodChar (Variation)`, this.goodChar);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-catalog-good">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <h4>Good settings:</h4>
+  <div class="form-row" id="itemName"></div>
+  <div class="form-row" id="parent"></div>
+  <div class="">
+    <span>Search also by parent</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-searchByParent">
+  </div>
+  <div class="form-row" id="mainUnit"></div>
+  <div class="form-row" id="goodType"></div>
+  <div class="form-row" id="accPolicy"></div>
+  <div class="">
+    <span>Get first good if found more than one</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-getFirstGoodIfFoundMore">
+  </div>
+  <div class="">
+    <span>Create good if not found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-createGoodIfNotFound">
+  </div>
+  <h4>Variations settings</h4>
+  <div class="form-row" id="goodChar"></div>
+  <div class="">
+    <span>Create goodChar (variation) if not found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-createGoodCharIfNotFound">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-catalog-good">
+  <h4>Node for getting or creating good with variations (optional)</h4>
+  <h5><b>IMPORTANT</b></h5>
+  <p>To create items in new (v10) delovod database, need to set <b>Type (accPolicy)</b> instead of <b>Type
+    (goodType)</b></p>
+  <p>Example value for <b>Type (accPolicy)</b> - <code>1201200000001002</code> - Goods </p>
+  <h4>How node works</h4>
+  <ol>
+    <li>
+      Node will look for good (catalog.goods) in delovod by <b>Item name</b> (by default)<br/>
+      Also you can add <b>parent</b> to search request by enabling <b>Search also by parent</b> <br/>
+      If no item with such name found, there are 2 possible outcomes:
+      <ul>
+        <li><b>Create good if not found</b> option enabled - item with <b>Item name, Group (parent), Unit (mainUnit),
+          Type (goodType)</b> will be created
+        </li>
+        <li><b>Create good if not found</b> option not enabled - error will be returned</li>
+      </ul>
+    </li>
+    <li>
+      If goodChar (Variation) is not empty, node will look for Variation in catalogs.goodChars catalog. <br/>
+      If no goodChar (Variation) with such name and owner (id of good) found, there are 2 possible outcomes:
+      <ul>
+        <li><b>Create goodChar (variation) if not found</b> option enabled - variation with <b>goodChar (variation)</b>
+          and <b>owner (good id)</b>will be created
+        </li>
+        <li><b>Create goodChar (variation) if not found</b> option not enabled - error will be returned</li>
+      </ul>
+    </li>
+  </ol>
+</script>

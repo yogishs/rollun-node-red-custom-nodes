@@ -1,0 +1,139 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-api-request-v2', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-api-request-v2",
+    defaults: {
+      config: {
+        value: "",
+        type: "delovod-config",
+        required: true
+      },
+      'action': {
+        value: "getObject",
+        required: true
+      },
+      'name': {
+        value: ""
+      },
+      'debug': {
+        value: false,
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod API request V2';
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-api-request-v2">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-action"><i class="fa fa-server"></i> Action</label>
+    <select id="node-input-action">
+      <option value="getObject">getObject</option>
+      <option value="saveObject">saveObject</option>
+      <option value="setDelMark">setDelMark</option>
+      <option value="request">request</option>
+    </select>
+  </div>
+  <div class="">
+    <span>Debug Mode (if enabled, node will add additional `msg.delovod-api-request-v2` property with debug output)</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-debug">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-api-request-v2">
+  <h4>A simple node, performs request delovod</h4>
+  <div>Node has 2 outputs:
+    <ul>
+      <li>1 - Error</li>
+      <li>2 - success</li>
+    </ul>
+  </div>
+  <h5>Example of full delovod <b>getObject</b> request</h5>
+  <pre>
+      {
+          "version": "0.15",
+          "key": "your_api_key",
+          "action": "getObject",
+          "params": {
+            "id": "123981264982306"
+          }
+        }
+    </pre>
+  With this node <code>version</code>, <code>key</code>, <code>action</code> will be filled for You <br/>
+  You only need to pass <code>msg.payload</code>, and it will be assigned to <code>params</code> field <br/>
+  Learn more about API requests in <a href="https://help.delovod.ua/ru/API_015">official documentation</a><br/>
+  <h4>Example <code>msg.payload</code> for every <b>action</b></h4>
+  <ul>
+    <li>
+      <h5>getObject (get any object - document, good etc.)</h5>
+      <pre>
+      {
+         "id": "123981264982306"
+      }
+      </pre>
+    </li>
+    <li>
+      <h5>saveObject (create new object - document, good etc. example of new good payload)</h5>
+      <pre>
+      {
+         "header: {
+            "id": "catalogs.goods",
+            "name": "my_test_item",
+            "accPolicy": 1201200000001002 // Goods
+          }
+      }
+      </pre>
+    </li>
+    <li>
+      <h5>setDelMark (mark document as `to delete`)</h5>
+      <pre>
+      {
+        "header": {
+          "id": "1109100000079000"
+        }
+      }
+      </pre>
+      <h5>setDelMark (delete document, forceDelete: 1 - also delete, 0 - just mark as `to delete`)</h5>
+      <pre>
+      {
+        "forceDelete": 1,
+        "header": {
+          "id": "1109100000079000"
+        }
+      }
+      </pre>
+    </li>
+    <li>
+      <h5>request (filter any objects, e.g. search good with name <b>my_test_item</b>)</h5>
+      <pre>
+      {
+        "from": "catalogs.goods",
+        "fields":{
+           "id":"id",
+           "name":"name"
+        },
+        "filters": [
+          {
+            "alias": "name", "operator": "=", "value": "my_test_item"
+          }
+        ]
+      }
+      </pre>
+    </li>
+  </ul>
+</script>

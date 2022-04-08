@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-autodist-api-v062",
+  "name": "node-red-contrib-rollun-autodist-api-v062",
   "version": "0.6.2",
   "description": "Node-RED node for autodist-api-v062",
   "main": "node.js",

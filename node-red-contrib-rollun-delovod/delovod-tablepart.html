@@ -1,0 +1,114 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-tablepart', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-tablepart",
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      name: {
+        value: ''
+      },
+      tableParts: {
+        value: '{}'
+      },
+      docType: {
+        value: window.delovod.documents[0].value
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod format any table part';
+    },
+    oneditprepare: function () {
+      const node = this;
+
+
+      const textarea = $('#node-input-tableParts');
+      const setDataValue = newData =>
+        textarea.val(
+          typeof newData === 'string'
+            ? newData
+            : JSON.stringify(newData))
+      const getDataValue = () => JSON.parse(textarea.val());
+      const setPropertyValue = (prop, tablePart, val) => {
+        const data = getDataValue();
+        if (!val && tablePart) {
+          delete data[tablePart][prop]
+        } else {
+          !data[tablePart] && (data[tablePart] = {})
+          data[tablePart][prop] = val;
+        }
+        setDataValue(data);
+      };
+
+      const renderTablePartForm = docType => {
+        const doc = window.delovod.documents.find(({value}) => value === docType);
+        const form = $('#tableparts-format-form');
+        form.html('');
+        let data = getDataValue();
+        let newData = {};
+        Object.entries(doc.fields).forEach(([tablePart, fields]) => {
+          if (tablePart === 'header') return;
+          form.append(`<h2>Table part - ${tablePart}</h2>`);
+          newData[tablePart] = {};
+          fields.forEach(({name, value, type}) => {
+              if (data[tablePart] && data[tablePart][value]) {
+                newData[tablePart][value] = data[tablePart][value];
+              }
+              window.delovod.utils.createTypedField({
+                customIdSuffix: tablePart,
+                name: name, type: type, value: value, defaultValue: newData[tablePart][value],
+                onChange: (name, value) => setPropertyValue(name, tablePart, value),
+                containerId: 'tableparts-format-form'
+              })
+              setDataValue(newData);
+            }
+          )
+        })
+      }
+      renderTablePartForm(node.docType);
+      $('#node-input-docType')
+        .html($.parseHTML(window.delovod.documents.map(({value, name}) =>
+          `<option ${value === node.docType ? 'selected' : ''} value="${value}">${name} (${value})</option>`
+        ).join('\n')))
+        .on('change', e => renderTablePartForm(e.target.value))
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-tablepart">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-docType">Document type</label>
+    <select id="node-input-docType">
+    </select>
+  </div>
+  <div class="form-row" id="tableparts-format-form">
+
+  </div>
+  <textarea style="display: none" id="node-input-tableParts"></textarea>
+</script>
+
+<script type="text/html" data-help-name="delovod-tablepart">
+  Data for creating table part expected to be in <code>msg.payload</code>,
+  leave it as <code>{}</code> - empty, if You don't have data for creating table part
+  It can be either <code>Array</code> or <code>Object</code>, in case of array, result fill be an array,
+  in case of object result will be an object
+  <h5>Outputs</h5>
+  1 - error - format <code>msg.payload = {error: "some error"}</code>
+  2 - success - format <code>msg.payload.tableParts = {...}</code>
+</script>

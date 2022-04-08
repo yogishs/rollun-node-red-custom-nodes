@@ -1,0 +1,269 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-get-item', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-get-item",
+    currentDocument: null,
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      docType: {
+        value: "",
+        required: true
+      },
+      name: {
+        value: ""
+      },
+      searchConditions: {
+        value: []
+      },
+      returnFirstIfMoreThanOne: {
+        value: false
+      },
+      getFullObject: {
+        value: false
+      },
+      conditions: {
+        value: '[{"alias": "delMark", "operator": "=", "value": "0"}]'
+      },
+      errorField: {
+        value: 'error'
+      }
+    },
+    oneditprepare: function () {
+      const node = this;
+
+      $('#node-input-conditions').val(node.conditions);
+
+      // setup doc type select
+      const {documents} = window.delovod;
+      const select = document.querySelector('#node-input-docType')
+      select.innerHTML = documents.map(doc => `<option value="${doc.value}">${doc.name} (${doc.value})</option>`).join('\n');
+      select.value = node.docType || documents[0].value;
+      select.onchange = e => {
+        const currentDocument = documents.find(doc => doc.value === e.target.value);
+        node._def.currentDocument = currentDocument;
+        $('#select-document-type-condition')
+          .html($.parseHTML(currentDocument.fields.header.map(({name, value}) => `<option value="${value}">${name} (${value})</option>`).join('\n')))
+      }
+
+      $("ol.list").editableList({
+        addItem: (row, index, _data) => {
+          const {currentDocument} = node._def;
+          const {operators} = window.delovod
+
+          const defaultData = {
+            alias: currentDocument.fields.header[0].value,
+            operator: operators[0].value,
+            value: 'msg.payload.value'
+          };
+          if (Object.keys(_data).length === 0) {
+            const oldValue = $('#node-input-conditions').val();
+            const newVal = JSON.parse(oldValue).concat(defaultData);
+            $('#node-input-conditions').val(JSON.stringify(newVal));
+          }
+          const data = Object.keys(_data).length > 0
+            ? _data
+            : defaultData
+
+          const handleConditionChange = (attr, newVal, idx) => {
+            let newData = JSON.parse($('#node-input-conditions').val());
+            newData[idx - 1] = {
+              ...newData[idx - 1],
+              [attr]: newVal
+            }
+            $('#node-input-conditions').val(JSON.stringify(newData));
+          };
+
+          const optionsFactory = (options) =>
+            options.map(({name, value}) => `<option value="${value}">${name} (${value})</option>`).join('\n');
+
+          const selectField = $('<select>').css('margin-top', '10px')
+            .attr('id', 'select-document-type-condition-#' + index)
+            .change(e => handleConditionChange('alias', e.target.value, index))
+            .css('margin-right', '5px')
+            .html($.parseHTML(optionsFactory(currentDocument.fields.header)))
+
+          const selectOperator = $('<select>')
+            .css('width', '100px')
+            .css('margin-top', '10px').css('margin-right', '5px')
+            .change(e => handleConditionChange('operator', e.target.value, index))
+            .html($.parseHTML(optionsFactory(operators)))
+
+          const valueInput = $('<input>')
+            .css('margin-top', '10px')
+            .css('margin-right', '20px')
+            .attr('type', 'text')
+            .attr('placeholder', 'if starts with msg. - it is property on msg, otherwise - constant value')
+            .change(e => handleConditionChange('value', e.target.value, index))
+
+          const deleteBtn = $('<a>')
+            .attr('href', '#')
+            .addClass('red-ui-editableList-item-remove red-ui-button red-ui-button-small')
+            .append($('<i>').addClass('fa fa-remove'))
+            .click(e => {
+              $('ol.list').editableList('removeItem', data)
+              if (Object.keys(_data).length === 0) {
+                $(`#node-input-rule-container li`)
+                  .get(index)
+                  .remove()
+              }
+              const oldVal = JSON.parse($('#node-input-conditions').val());
+
+              $('#node-input-conditions').val(JSON.stringify(oldVal.filter((_, idx) => idx !== index - 1)));
+            })
+
+          selectField.val(data.alias)
+          selectOperator.val(data.operator)
+          valueInput.val(data.value)
+
+          const container = $('<div>')
+            .addClass('form-row')
+            .css('display', 'flex')
+            .append(selectField)
+            .append(selectOperator)
+            .append(valueInput)
+            .append(deleteBtn)
+          $(row).html(container);
+        },
+        height: 450,
+        scrollOnAdd: true,
+        sortable: true,
+      });
+      JSON.parse(node.conditions)
+        .forEach(cond => {
+          $('ol.list').editableList('addItem', cond);
+        });
+    },
+    label: function () {
+      return this.name || 'Delovod get item';
+    }
+  });
+
+  // function to fetch docs from delovod, just run in browser
+  async function getDelovodDocs() {
+    const basePage = await fetch('https://help.delovod.ua/ru/mdata/list').then(res => res.text());
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(basePage, 'text/html');
+    const docsNames = [...dom.querySelectorAll('table.tableMdata tbody tr')]
+      .filter(el => el.querySelector('a'))
+      .map(row => {
+        const tds = row.querySelectorAll('td');
+        return {
+          value: tds[0].innerText.trim(),
+          name: tds[1].innerText.trim(),
+
+        }
+      })
+      .filter(({value}) => value.indexOf('document') === 0);
+    const detailedInfo = await Promise.all(docsNames.map(doc => {
+      return (async () => {
+        const res = await fetch('/ru/mdata/' + doc.value).then(res => res.text());
+        return {
+          page: res,
+          ...doc
+        }
+      })();
+    }))
+
+    const getFields = (dom) => {
+      const rows = [...dom.querySelector('table.tableMdata tbody').children].slice(2);
+      let sectionName = 'header';
+      let fields = {}
+      for (const item of rows) {
+        if (item.innerText.includes('Табличная часть')) {
+          sectionName = item.innerText.replace('Табличная часть', '').replace(/"/g, '').trim();
+          continue;
+        }
+        if (!fields[sectionName]) fields[sectionName] = [];
+        const value = item.querySelector('td[data-label="Наименование"]');
+        const name = item.querySelector('td[data-label="Представление"]');
+        const typeString = item.querySelector('td[data-label="Тип(ы) данных"]').innerText;
+        const isTypePrimitive = !(typeString.includes('catalog') || typeString.includes('document'));
+        fields[sectionName].push({
+          name: name && name.innerText.trim(),
+          value: value && value.innerText.trim(),
+          type: {
+            isPrimitive: isTypePrimitive,
+            name: isTypePrimitive
+              ? typeString.trim()
+              : typeString.split(',').map(str => str.trim())
+          }
+        });
+      }
+      return fields;
+    }
+    return detailedInfo.map(({page, name, value}) => {
+      const dom = parser.parseFromString(page, 'text/html');
+      // ignore table part
+
+      return {
+        name, value,
+        fields: getFields(dom)
+      }
+    });
+  }
+
+</script>
+
+<script type="text/html" data-template-name="delovod-get-item">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-docType"><i class="fa fa-server"></i> Document Type</label>
+    <select id="node-input-docType">
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-errorField"><i class="fa fa-server"></i> Error Field</label>
+    <input type="text" id="node-input-errorField">
+  </div>
+  <div class="">
+    <span>Get first item, if more than 1 one found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-returnFirstIfMoreThanOne">
+  </div>
+  <div class="">
+    <span>Additionally request full item data</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-getFullObject">
+  </div>
+  <input type="hidden" id="node-input-conditions">
+
+  <div class="form-row node-input-rule-container-row">
+    <div class="red-ui-editableList">
+      <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
+        <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
+            style="min-height: 0px; min-width: 450px; height: auto;">
+          <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-get-item">
+  <h4>A simple node, filters documents of some type</h4>
+  This node returns error if
+  <ul>
+    <li>No items found</li>
+    <li>Found more than one item (if <b>Get first item, if more than 1 one found</b> enabled, will be returned first
+      item)
+    </li>
+    <li>Delovod returned error</li>
+  </ul>
+  if <b>Additionally request full item
+    data</b> enabled, for item will be done additional read request to get all object fields
+</script>

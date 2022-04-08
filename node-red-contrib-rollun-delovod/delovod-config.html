@@ -1,0 +1,67 @@
+<script type="text/javascript">
+  RED.nodes.registerType('delovod-config', {
+    category: 'config',
+    defaults: {
+      version: {value: "0.15", required: true},
+      key: {value: "", required: true},
+      host: {value: "https://delovod.ua/api/", required: true},
+      name: {value: "", required: true},
+    },
+    label: function () {
+      return this.name || (this.host + " v" + this.version);
+    }
+  });
+
+  async function getDelovodCatalogFields() {
+      const catalog = [{"value":"catalogs.APINodes","name":"Узлы API"},{"value":"catalogs.HSCodes","name":"Коды УКТ ВЭД и ГКПУ"},{"value":"catalogs.KVED","name":"КВЄД: Классификатор видов экономической деятельности"},{"value":"catalogs.accounts","name":"План счетов"},{"value":"catalogs.appRestrictionTypes","name":"Вид дополнительных ограничений прав пользователей"},{"value":"catalogs.banks","name":"Банки и платежные системы"},{"value":"catalogs.brigades","name":"Бригады"},{"value":"catalogs.businesses","name":"Виды бизнеса"},{"value":"catalogs.calcKinds","name":"Виды расчетов"},{"value":"catalogs.cashAccounts","name":"Банковские счета"},{"value":"catalogs.cashDesks","name":"Кассы"},{"value":"catalogs.cashGoals","name":"Финансовые цели"},{"value":"catalogs.cashItems","name":"Статьи движения денежных средств"},{"value":"catalogs.cashLoans","name":"Кредиты, займы"},{"value":"catalogs.cities","name":"Населенные пункты"},{"value":"catalogs.clientBankSettings","name":"Настройки загрузки банковских выписок"},{"value":"catalogs.committees","name":"Комиссии"},{"value":"catalogs.constants","name":"Настройки учета"},{"value":"catalogs.costItems","name":"Статьи затрат"},{"value":"catalogs.costItemsForSpread","name":"Статьи распределяемых затрат"},{"value":"catalogs.costSpreadRules","name":"Правила распределения затрат"},{"value":"catalogs.countries","name":"Страны"},{"value":"catalogs.currency","name":"Валюты"},{"value":"catalogs.currencyRateTypes","name":"Типы валютных курсов"},{"value":"catalogs.dataRestrictionTypes","name":"Правила ограничений доступа"},{"value":"catalogs.deferredTaxItems","name":"Отсроченные налоговые активы и обязательства"},{"value":"catalogs.deliveryMethods","name":"Способы доставки"},{"value":"catalogs.deliveryPointTypes","name":"Типы точек доставки"},{"value":"catalogs.deliveryPoints","name":"Точки доставки"},{"value":"catalogs.deliveryRoutes","name":"Маршруты доставки собственной службой"},{"value":"catalogs.departments","name":"Подразделения"},{"value":"catalogs.devices","name":"Мобильные устройства"},{"value":"catalogs.discountCardKinds","name":"Виды дисконтных карт"},{"value":"catalogs.discountCards","name":"Дисконтные карты"},{"value":"catalogs.employeeCategories","name":"Категории сотрудников"},{"value":"catalogs.employeePositions","name":"Должности работников"},{"value":"catalogs.employees","name":"Работники"},{"value":"catalogs.exchangeSettings","name":"Настройка обмена данными"},{"value":"catalogs.files","name":"Файловое хранилище"},{"value":"catalogs.firms","name":"Предприниматели"},{"value":"catalogs.forms","name":"Формы"},{"value":"catalogs.goodParts","name":"Партии товара"},{"value":"catalogs.goodReqValues1","name":"Значения дополнительного реквизита 1 справочника \"Товары и услуги\""},{"value":"catalogs.goodReqValues2","name":"Значения дополнительного реквизита 2 справочника \"Товары и услуги\""},{"value":"catalogs.goodReqValues3","name":"Значения дополнительного реквизита 3 справочника \"Товары и услуги\""},{"value":"catalogs.goods","name":"Товары и услуги"},{"value":"catalogs.goodsAccPolicies","name":"Настройки учета товаров (услуг)"},{"value":"catalogs.goodsCategories","name":"Категории товаров и услуг"},{"value":"catalogs.goodsStateForOrder","name":"Доступность товара для заказа"},{"value":"catalogs.help","name":"База знаний"},{"value":"catalogs.hourRateTypes","name":"Виды почасовых тарифов"},{"value":"catalogs.incomeItems","name":"Статьи доходов"},{"value":"catalogs.investments","name":"Инвестиции"},{"value":"catalogs.jurisdictions","name":"Налоговые юрисдикции"},{"value":"catalogs.languages","name":"Языки"},{"value":"catalogs.lowValueAssetsInUse","name":"Малоценные активы в эксплуатации"},{"value":"catalogs.metadata","name":"Метаданные"},{"value":"catalogs.mobProfiles","name":"Профили мобильных устройств"},{"value":"catalogs.nonCurrentAssets","name":"Необоротные активы"},{"value":"catalogs.nonCurrentAssetsGroups","name":"Налоговые группы необоротных активов"},{"value":"catalogs.paymentForms","name":"Формы оплаты"},{"value":"catalogs.periods","name":"Периоды"},{"value":"catalogs.personCashAccounts","name":"Банковские счета контрагентов"},{"value":"catalogs.personContacts","name":"Контактные лица"},{"value":"catalogs.persons","name":"Контрагенты"},{"value":"catalogs.positions","name":"Должности, профессии"},{"value":"catalogs.priceTypes","name":"Категории отпускных цен"},{"value":"catalogs.prodFormFactors","name":"Форм-факторы заготовок деталей"},{"value":"catalogs.prodItemKinds","name":"Виды элементов спецификаций"},{"value":"catalogs.prodKinds","name":"Виды производства"},{"value":"catalogs.prodPlaces","name":""},{"value":"catalogs.propKindValues","name":"Значения дополнительных свойств объектов"},{"value":"catalogs.propKinds","name":"Дополнительные свойства объектов"},{"value":"catalogs.propSets","name":"Настройки дополнительных свойств объектов"},{"value":"catalogs.reasons","name":"Причины"},{"value":"catalogs.roles","name":"Роли"},{"value":"catalogs.salesTaxes","name":"Налоги с продаж"},{"value":"catalogs.securities","name":"Ценные бумаги"},{"value":"catalogs.settlementsKinds","name":"Настройки учета взаиморасчетов"},{"value":"catalogs.signsOfIncomeFor1DF","name":"Коды признаков дохода (для формы 1-ДФ)"},{"value":"catalogs.states","name":"Статусы документов"},{"value":"catalogs.storages","name":"Склады"},{"value":"catalogs.streets","name":"Улицы"},{"value":"catalogs.subs","name":"Рассылки"},{"value":"catalogs.supplierPriceLists","name":"Прайс-листы поставщиков"},{"value":"catalogs.taxDeclarationItems","name":"Статьи налоговых деклараций"},{"value":"catalogs.taxDeclarationKinds","name":"Виды налоговых деклараций"},{"value":"catalogs.taxInspections__forDel","name":"Налоговые инспекции"},{"value":"catalogs.taxReportGateways","name":"Шлюзы приема электронной отчетности"},{"value":"catalogs.taxReports","name":"Виды отчетности"},{"value":"catalogs.taxReportsXSD","name":"XSD-схемы"},{"value":"catalogs.taxationSystems","name":"Системы налогообложения"},{"value":"catalogs.taxes","name":"Налоги, сборы, обязательные платежи"},{"value":"catalogs.techCards","name":"Технологические карты _forDel"},{"value":"catalogs.techEquipments","name":"Виды оборудования"},{"value":"catalogs.templates","name":"Шаблоны печатных форм (стандартные)"},{"value":"catalogs.testMobileAsm","name":""},{"value":"catalogs.tradeChanels","name":"Каналы продаж"},{"value":"catalogs.tradeMarks","name":"Торговые марки"},{"value":"catalogs.typicalOperations","name":"Типовые операции"},{"value":"catalogs.units","name":"Единицы измерения"},{"value":"catalogs.userMenu","name":"Меню пользователя"},{"value":"catalogs.userTemplates","name":"Шаблоны печатных форм (пользовательские)"},{"value":"catalogs.users","name":"Пользователи"},{"value":"catalogs.videos","name":"Видео-уроки"},{"value":"catalogs.workSchedules","name":"Рабочие графики"},{"value":"catalogs.workingTimeKind","name":"Виды рабочего времени"}]
+
+      // const basePage = await fetch('https://help.delovod.ua/ru/mdata/list').then(res => res.text());
+      // const parser = new DOMParser();
+      // const dom = parser.parseFromString(basePage, 'text/html');
+      // const docsNames = [...dom.querySelectorAll('table.tableMdata tbody tr')]
+      //     .filter(el => el.querySelector('a'))
+      //     .map(row => {
+      //         const tds = row.querySelectorAll('td');
+      //         return {
+      //             value: tds[0].innerText.trim(), name: tds[1].innerText.trim()
+      //         }
+      //     })
+      //     .filter(({value}) => value[0] === 'c');
+      //
+      const result = await Promise.all(catalog.map(({value, name}) => {
+          return (async () => {
+              const {data} = await fetch('https://delovod.ua/api/').json(res => res.json());
+              return {
+                  name, value,
+                  options: data.map(row => ({name: row.id__pr, value: row.id}))
+              }
+          })();
+      }));
+
+  }
+
+
+</script>
+
+<script type="text/html" data-template-name="delovod-config">
+    <div class="form-row">
+        <label for="node-config-input-version"><i class="icon-bookmark"></i> API Version</label>
+        <input type="text" id="node-config-input-version">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="icon-bookmark"></i> API Host</label>
+        <input type="text" id="node-config-input-host">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-key"><i class="icon-bookmark"></i> API Key</label>
+        <input type="text" id="node-config-input-key">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Config Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-config">
+</script>
+
