@@ -1,7 +1,7 @@
 node-red-contrib-rollun-megaplan
 ================
 
-Node-RED node for getting distance between two places
+Node-RED node for interacting with megaplan api
 
 ## Nodes
 List of nodes:

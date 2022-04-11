@@ -1,0 +1,214 @@
+<script type="application/javascript">
+  "use strict";
+
+  window.mws = {
+    categories: [
+      {
+        "name": "EasyShip",
+        "version": "2018-09-01",
+        "actions": [
+          "CreateScheduledPackage",
+          "GetScheduledPackage",
+          "GetServiceStatus",
+          "ListPickupSlots",
+          "UpdateScheduledPackages"
+        ]
+      },
+      {
+        "name": "Feeds",
+        "version": "2009-01-01",
+        "actions": [
+          "CancelFeedSubmissions",
+          "GetFeedSubmissionCount",
+          "GetFeedSubmissionListByNextToken",
+          "GetFeedSubmissionList",
+          "GetFeedSubmissionResult",
+          "GetFeedSubmissionResultCharset",
+          "GetFeedSubmissionResultRaw",
+          "SubmitFeed",
+          "SubmitFeedUploadVatInvoice"
+        ]
+      },
+      {
+        "name": "Finances",
+        "version": "2015-05-01",
+        "actions": [
+          "ListFinancialEventGroups",
+          "ListFinancialEventGroupsByNextToken",
+          "ListFinancialEvents",
+          "ListFinancialEventsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentInboundShipment",
+        "version": "2010-10-01",
+        "actions": [
+          "ConfirmPreorder",
+          "GetInboundGuidanceForSKU",
+          "GetInboundGuidanceForASIN",
+          "CreateInboundShipmentPlan",
+          "CreateInboundShipment",
+          "UpdateInboundShipment",
+          "GetPreorderInfo",
+          "GetPrepInstructionsForSKU",
+          "GetPrepInstructionsForASIN",
+          "PutTransportContent",
+          "EstimateTransportRequest",
+          "GetTransportContent",
+          "ConfirmTransportRequest",
+          "VoidTransportRequest",
+          "GetPackageLabels",
+          "GetUniquePackageLabels",
+          "GetPalletLabels",
+          "GetBillOfLading",
+          "ListInboundShipments",
+          "ListInboundShipmentsByNextToken",
+          "ListInboundShipmentItems",
+          "ListInboundShipmentItemsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentInventory",
+        "version": "2010-10-01",
+        "actions": [
+          "ListInventorySupply",
+          "ListInventorySupplyByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentOutboundShipment",
+        "version": "2010-10-01",
+        "actions": [
+          "GetFulfillmentPreview",
+          "CreateFulfillmentOrder",
+          "ListAllFulfillmentOrders",
+          "UpdateFulfillmentOrder",
+          "GetFulfillmentOrder",
+          "ListAllFulfillmentOrdersByNextToken",
+          "GetPackageTrackingDetails",
+          "CancelFulfillmentOrder",
+          "ListReturnReasonCodes",
+          "CreateFulfillmentReturn",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "MerchantFulfillment",
+        "version": "2015-06-01",
+        "actions": [
+          "CreateShipment",
+          "GetEligibleShippingServices",
+          "GetAdditionalSellerInputs",
+          "GetShipment",
+          "CancelShipment",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Orders",
+        "version": "2013-09-01",
+        "actions": [
+          "ListOrderItems",
+          "ListOrders",
+          "ListOrderFilterStatus",
+          "ListOrderItemsByNextToken",
+          "GetOrder",
+          "ListOrdersByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Products",
+        "version": "2011-10-01",
+        "actions": [
+          "ListMatchingProducts",
+          "GetMatchingProduct",
+          "GetMatchingProductForId",
+          "GetCompetitivePricingForASIN",
+          "GetCompetitivePricingForSKU",
+          "GetLowestOfferListingsForSKU",
+          "GetLowestOfferListingsForASIN",
+          "GetLowestPricedOffersForSKU",
+          "GetLowestPricedOffersForASIN",
+          "GetMyFeesEstimate",
+          "GetMyPriceForSKU",
+          "GetMyPriceForASIN",
+          "GetMatchingProductMultipleASIN",
+          "GetProductCategoriesForSKU",
+          "GetProductCategoriesForASIN",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Recommendations",
+        "version": "2013-04-01",
+        "actions": [
+          "GetLastUpdatedTimeForRecommendations",
+          "ListRecommendations",
+          "ListRecommendationsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Reports",
+        "version": "2009-01-01",
+        "actions": [
+          "GetReport",
+          "GetReportList",
+          "GetReportRequestList",
+          "RequestReport",
+          "GetReportRequestListByNextToken",
+          "GetReportRequestCount",
+          "CancelReportRequests",
+          "GetReportListByNextToken",
+          "GetReportCount",
+          "ManageReportSchedule",
+          "GetReportScheduleList",
+          "GetReportScheduleListByNextToken",
+          "GetReportScheduleCount",
+          "UpdateReportAcknowledgements"
+        ]
+      },
+      {
+        "name": "Sellers",
+        "version": "2011-07-01",
+        "actions": [
+          "ListMarketplaceParticipations",
+          "ListMarketplaceParticipationsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "ShipmentInvoicing",
+        "version": "2018-11-01",
+        "actions": [
+          "GetFBAOutboundShipmentDetail",
+          "SubmitFBAOutboundShipmentInvoice",
+          "GetFBAOutboundShipmentInvoiceStatus",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Subscriptions",
+        "version": "2013-07-01",
+        "actions": [
+          "CreateSubscription",
+          "DeleteSubscription",
+          "ListSubscriptions",
+          "RegisterDestination",
+          "DeregisterDestination",
+          "ListRegisteredDestinations",
+          "SendTestNotificationToDestination",
+          "GetSubscription",
+          "UpdateSubscription",
+          "GetServiceStatus"
+        ]
+      }
+    ]
+  }
+
+
+</script>

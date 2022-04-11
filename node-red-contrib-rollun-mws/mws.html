@@ -1,0 +1,114 @@
+<script type="text/javascript">
+  RED.nodes.registerType('MWS', {
+    category: 'function',
+    color: '#ffc266',
+    defaults: {
+      name: {
+        value: ""
+      },
+      config: {
+        value: "",
+        type: "mws-config"
+      },
+      category: {
+        value: window.mws.categories[0].name
+      },
+      action: {
+        value: window.mws.categories[0].actions[0]
+      },
+      actionPayload: {
+        value: 'msg|payload'
+      },
+      version: {
+        value: 'msg|version'
+      },
+      actionType: {
+        value: 'search',
+        required: true
+      }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: "amazon.png",
+    label: function () {
+      return this.name || "Amazon MWS"
+    },
+    oneditprepare: function () {
+      const node = this;
+
+      window.utils.makeTypedInput('actionPayload', [{
+        value: "msg",
+        label: "msg."
+      }], 'Action payload', node.actionPayload);
+      window.utils.makeTypedInput('version', undefined, 'Version', node.version);
+
+      const updateActionSelector = (value = window.mws.categories[0]) => {
+        const category = window.mws.categories.find(({name}) => value === name);
+        const {actions} = category;
+        $('#node-input-action')
+          .html(
+            actions.map(action =>
+              `<option ${action === node.action ? 'selected' : ''} value="${action}">${action}</option>`
+            )
+          )
+      }
+
+      $('#node-input-category')
+        .html(
+          window.mws.categories.map(({name}) =>
+            `<option ${name === node.category ? 'selected' : ''} value="${name}">${name}</option>`
+          ))
+        .on('change', e => updateActionSelector(e.target.value));
+      updateActionSelector(node.category);
+    }
+  })
+</script>
+
+<script type="text/html" data-template-name="MWS">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config">MWS Credentials</label>
+    <input type="text" id="node-input-config" placeholder="Config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-category">Category</label>
+    <select id="node-input-category">
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-action">Action</label>
+    <select id="node-input-action">
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-actionType">Action Type</label>
+    <select id="node-input-actionType">
+      <option value="search">search</option>
+      <option value="submit">submit</option>
+    </select>
+  </div>
+  <h4>Action Type examples can be found <a style="color: blue" href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
+  <div class="form-row" id="actionPayload">
+  </div>
+  <h4>payload examples can be found <a style="color: blue" href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
+  <h4>For date values, just pass date as a string in format - <b>2020-01-31</b></h4>
+  <h4>Values <code>SellerId</code> and <code>MWSAuthToken</code> will be filled from config</h4>
+  <div class="form-row" id="version">
+  </div>
+  <h4>versions examples can be found
+    <a style="color: blue" href="http://docs.developer.amazonservices.com/en_IN/finances/Finances_GetServiceStatus.html">here</a>
+  </h4>
+</script>
+
+<script type="text/x-red" data-help-name="MWS">
+  <h3>A simple node for connecting to MWS</h3>
+  <h5>Full documentation for MWS API <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h5>
+  <p>This node has two outputs:</p>
+  <ul>
+    <li>1 - if error</li>
+    <li>2 - if success</li>
+  </ul>
+</script>

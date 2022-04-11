@@ -1,0 +1,75 @@
+<script type="text/javascript">
+  RED.nodes.registerType('mws-config', {
+    category: 'config',
+    defaults: {
+      name: {
+        value: ''
+      },
+      accessKeyId: {
+        value: "",
+        required: true,
+      },
+      secretAccessKey: {
+        value: "",
+        required: true,
+      },
+      merchantId: {
+        value: "",
+        required: true,
+      },
+      MWSAuthToken: {
+        value: "",
+        required: true
+      },
+      marketplaceId: {
+        value: "",
+        required: true
+      },
+      host: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || "Amazon MWS " + (this.merchantId || '')
+    }
+  })
+</script>
+
+<script type="text/x-red" data-template-name="mws-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-merchantId"><i class="icon-tag"></i> Merchant ID</label>
+    <input type="text" id="node-config-input-merchantId" placeholder="Merchant Id">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-accessKeyId"><i class="icon-tag"></i> Access Key</label>
+    <input type="password" id="node-config-input-accessKeyId" placeholder="Access Key Id">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-secretAccessKey"><i class="icon-tag"></i> AWS Secret</label>
+    <input type="password" id="node-config-input-secretAccessKey" placeholder="AWS Secret">
+  </div>
+    <div class="form-row">
+    <label for="node-config-input-MWSAuthToken"><i class="icon-tag"></i> MWS Auth Token</label>
+    <input type="password" id="node-config-input-MWSAuthToken" placeholder="MWSAuthToken">
+  </div>
+  </div>
+    <div class="form-row">
+    <label for="node-config-input-marketplaceId"><i class="icon-tag"></i> Marketplace ID</label>
+    <input type="text" id="node-config-input-marketplaceId" placeholder="Marketplace ID">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-host"><i class="icon-tag"></i> Host</label>
+    <input type="text" id="node-config-input-host" placeholder="mws.amazonservices.com">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="mws-config">
+  <h3>A simple node for connecting to MWS</p>
+  <h5>Full documentation for MWS API <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h5>
+
+
+</script>
