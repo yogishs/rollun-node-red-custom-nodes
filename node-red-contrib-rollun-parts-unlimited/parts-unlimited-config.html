@@ -1,0 +1,35 @@
+<script type="text/javascript">
+  RED.nodes.registerType('parts-unlimited-config', {
+    category: 'config',
+    defaults: {
+      name: {value: ""},
+      dealerNumber: {value: "", required: true},
+      login: {value: "", required: true},
+      password: {value: "", required: true},
+    },
+    label: function () {
+      return this.name || 'Parts Unlimited API config';
+    }
+  });
+
+
+</script>
+
+<script type="text/html" data-template-name="parts-unlimited-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="icon-bookmark"></i> Config Name</label>
+    <input type="text" id="node-config-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-login">Login</label>
+    <input type="text" id="node-config-input-login">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-dealerNumber">Dealer number</label>
+    <input type="text" id="node-config-input-dealerNumber">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-password">Password</label>
+    <input type="password" id="node-config-input-password">
+  </div>
+</script>

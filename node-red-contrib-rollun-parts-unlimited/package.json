@@ -1,0 +1,20 @@
+{
+  "name": "node-red-contrib-rollun-parts-unlimited",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-red-contrib-rollun-backend-utils": "^1.0.0"
+  },
+  "keywords": [
+    "node-red"
+  ],
+  "node-red": {
+    "nodes": {
+      "parts-unlimited-config": "parts-unlimited-config.js",
+      "parts-unlimited-orders": "parts-unlimited-orders.js"
+    }
+  },
+  "author": "",
+  "license": "ISC"
+}

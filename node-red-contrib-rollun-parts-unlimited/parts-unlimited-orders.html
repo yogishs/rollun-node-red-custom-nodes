@@ -1,0 +1,280 @@
+<script type="text/javascript">
+  "use strict";
+  const getOrderConfig = {
+    config: [{
+      type: 'string',
+      name: 'limit',
+      alias: 'Limit',
+      default: 20
+    }, {
+      type: 'string',
+      name: 'offset',
+      alias: 'Offset',
+      default: 0
+    }, {
+      type: 'datetime',
+      name: 'startDate',
+      alias: 'Start Date',
+    }, {
+      type: 'datetime',
+      name: 'endDate',
+      alias: 'End Date',
+    }, {
+      type: 'string',
+      name: 'poNumber',
+      alias: 'Purchase Order Number',
+    }, {
+      type: 'string',
+      name: 'invoiceNumber',
+      alias: 'Invoice Number',
+    }, {
+      type: 'select',
+      name: 'sortBy',
+      alias: 'Sort By',
+      options: [
+        '-- none --',
+        'created_at ASC',
+        'created_at DESC',
+        'updated_at ASC',
+        'updated_at DESC',
+      ]
+    }]
+  }
+  const puConfig = Object.freeze({
+    getOpenOrders: getOrderConfig,
+    getSubmittedOrders: getOrderConfig,
+    getBackorderedOrders: getOrderConfig,
+    getAllOrders: getOrderConfig,
+    getOrderById: {
+      config: [{
+        name: 'id',
+        type: 'string',
+        alias: 'Internal PU Order id, looks like - 4e98bfb1-4625-40c1-ab62-a3556c63ff85',
+      }]
+    }
+  })
+
+  RED.nodes.registerType('parts-unlimited-orders', {
+    category: 'Parts Unlimited',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    paletteLabel: "Parts Unlimited Orders UI",
+    defaults: {
+      name: {
+        value: ''
+      },
+      config: {
+        value: '',
+        type: 'parts-unlimited-config',
+        required: true
+      },
+      methodName: {
+        value: 'getOpenOrders'
+      },
+      requestPayload: {
+        value: ''
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || "Parts Unlimited Orders UI";
+    },
+    oneditprepare() {
+      const setRequestPayload = (newPayload) => {
+
+        if (typeof newPayload === 'object') {
+          $('#node-input-requestPayload').val(JSON.stringify(newPayload));
+        } else {
+          $('#node-input-requestPayload').val(newPayload);
+        }
+      }
+      const getRequestPayload = () => {
+        const value = $('#node-input-requestPayload').val();
+        try {
+          return JSON.parse(value);
+        } catch (err) {
+          console.log('not a json', value, err);
+          return value;
+        }
+      }
+
+      const node = this;
+
+      // let isFirstRender = true;
+
+      $('#node-input-methodName')
+        .html(Object.keys(puConfig).map(method =>
+          `<option value="${method}" ${node.methodName === method ? 'selected' : ''} >${method}</option>`
+        ))
+
+      const buildPayloadForm = (methodName, initData) => {
+        const container = $('#request-payload');
+        const {config} = puConfig[methodName];
+
+        // reset container
+        container.html('');
+
+        if (typeof config === 'string') {
+          container
+            .append(
+              $('<div class="form-row">')
+                .append($(`<label>${config}</label>`))
+                .append($(`<input type="text"
+                                  data-path=""
+                                  class="pu-options-typed-input"
+                                  value="${initData || ''}"
+                                  style="margin-left: 5px"
+                                  placeholder="${config}">`))
+            );
+        } else {
+          container
+            .append(
+              config
+                .map(({name, type, default: defaultValue, alias, options}) => {
+                  if (type === 'string') {
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(
+                      default: ${defaultValue}
+
+                      )`}</label>`))
+                      .append($(`<input type="text"
+                                        data-path="${name}"
+                                        class="pu-options-typed-input">`));
+
+                  } else if (type === 'select') {
+                    const {sortBy = 'const|-- none --'} = getRequestPayload() || {}
+
+                    const [_, val] = sortBy.split('|');
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name}</label>`))
+                      .append($(`<select>`)
+                        .html(options.map(option => {
+                            console.log('option', option, val);
+                            return `<option ${option === val ? 'selected' : ''} value="${option}">${option}</option>`
+                          }
+                        ))
+                        .on('change', e => {
+                          const newData = e.target.value === '-- none --'
+                            ? window._.unset(getRequestPayload() || {}, name)
+                            : window._.set(getRequestPayload() || {}, name, `const|${e.target.value}`);
+                          setRequestPayload(newData);
+                        })
+                      );
+
+                  } else if (type === 'datetime') {
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(
+                      default: ${defaultValue}
+
+                      )`}</label>`))
+                      .append('<label>date-time is expected to be in yyyy-mm-dd or ISO formats</label>')
+                      .append($(`<input type="text"
+                                        data-path="${name}"
+                                        class="pu-options-typed-input">`));
+                  } else if (type === 'datetime-range') {
+                    const {from = '', to = ''} = filter[name] || {};
+                    return $('<div style="margin-top: 20px">>')
+                      .append([
+                        $(`<h5>${alias || name}</h5>`),
+                        $(`<input value="${from}"
+                                      data-path="filter.${name}.from"
+                                      class="pu-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.from">
+                               `),
+                        $(`<input value="${to}"
+                                      data-path="filter.${name}.to"
+                                      class="pu-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.to">`)
+                      ])
+                  } else if (type === 'enum') {
+                    const currentRequestPayload = getRequestPayload() || {}
+                    const currentFilter = currentRequestPayload.filter || {};
+                    const [_, currValue = ''] = (currentFilter[name] || '').split('|');
+                    $('<div style="margin-top: 20px">>')
+                      .append([
+                        $(`<h5>${alias || name}</h5>`),
+                        $(`<select style="margin-left: 15px">
+                            <option ${currValue === '' ? 'selected' : ''} value="">-</option>
+                               ${values.map(value => `<option ${currValue === value ? 'selected' : ''} value="${value}">${value}</option>`)}
+                            </select>`)
+                          .change(e =>
+                            setRequestPayload(window._.set(getRequestPayload() || {}, `filter.${name}`, `const|${e.target.value}`))
+                          )
+                      ])
+                  }
+                })
+            )
+        }
+        // replace inputs with typed inputs
+        $('.pu-options-typed-input')
+          .each((idx, node) => {
+            const types = [{
+              value: "msg",
+              label: "msg."
+            }, {
+              value: "const",
+              label: "constant"
+            }]
+            const data = getRequestPayload();
+            const dataPath = node.dataset.path;
+            const typedValue = dataPath === '' ? data : window._.get(data || {}, dataPath, '');
+            const [type, value = ''] = typedValue.split('|');
+
+            $(node)
+              .typedInput({types: types})
+              .typedInput('value', value)
+              .typedInput('type', type)
+              .on('change', (e, type) => {
+                if (type === true) return;
+                if (dataPath === "") {
+                  setRequestPayload(`${type}|${e.target.value}`)
+                } else {
+                  const newData = window._.set(getRequestPayload() || {}, dataPath, `${type}|${e.target.value}`);
+                  setRequestPayload(newData);
+                }
+              })
+          })
+      };
+
+      $('#node-input-methodName')
+        .change(e => {
+          if (e.target.value !== node.methodName) {
+            setRequestPayload('');
+          }
+          buildPayloadForm(e.target.value, getRequestPayload())
+        })
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="parts-unlimited-orders">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+        <input type="hidden" id="node-input-requestPayload">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config">Credentials</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-methodName">Method name</label>
+        <select id="node-input-methodName"></select>
+    </div>
+    <div>IMPORTANT: when using getAllOrders method, number of orders in result may be bigger that your limit,
+        because this method will do 1 request to getOpenOrders, getSubmittedOrders and getBackorderedOrders with
+        specified limit,
+        and result will be an array, that is sorted by createdAt
+    </div>
+    <div id="request-payload">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="parts-unlimited-orders">
+</script>
