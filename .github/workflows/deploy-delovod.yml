@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package.json') }}
 
       - name: Install dependecies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run build
