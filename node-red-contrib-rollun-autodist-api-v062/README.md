@@ -5,6 +5,11 @@ Node-RED node for autodist-api-v062
 
 <b>Possible error codes</b><br>HTTP 500 : E000 - Unspecified internal error<br>HTTP 401 : E001 - Authorization error<br>HTTP 423 : E002 - API access is disabled<br>HTTP 403 : E003 - Too Many Requests<br>HTTP 406 : E004 - HTTP is not allowed, use HTTPS instead<br>** HTTP 422 : E005 - The item number is restricted for processing<br>HTTP 400 : E100 - Validation error<br>HTTP 503 : E200 - Unspecified Gateway service error<br>HTTP 404 : E201 - Not found on the Gateway service side<br>HTTP 400 : E202 - No shipping options available
 
+## Nodes
+
+List of nodes:
+autodist-api-v062
+
 ## Install
 
 To install the stable version use the `Menu - Manage palette - Install` 

@@ -1,0 +1,87 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('get-distance', {
+    category: 'function',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/fa-globe.svg",
+    paletteLabel: "get-distance",
+    defaults: {
+      name: {
+        value: ""
+      },
+      point1: {
+        value: 'msg|point1'
+      },
+      point2: {
+        value: 'msg|point2'
+      },
+      resultPath: {
+        value: 'msg|result'
+      },
+    },
+    label: function () {
+      return this.name || 'Get Distance';
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success',
+      ][index]
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('point1', [{
+        value: "msg",
+        label: "msg."
+      }], 'First', this.point1);
+      window.utils.makeTypedInput('point2', [{
+        value: "msg",
+        label: "msg."
+      }], 'Second', this.point2);
+      window.utils.makeTypedInput('resultPath', [{
+        value: "msg",
+        label: "msg."
+      }], 'Result store in ', this.resultPath);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="get-distance">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row" id="point1">
+    </div>
+    <div class="form-row" id="point2">
+    </div>
+    <div class="form-row" id="resultPath">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="get-distance">
+    Node has 2 required fields -
+    <ol>
+        <li>point1 - path to first point</li>
+        <li>point2 - path to second point</li>
+    </ol>
+
+    Example - <br/>
+    <code>
+        msg.point1 = { latitude: 51.5103, longitude: 7.49347 };
+    </code>
+
+    <code>
+        msg.point2 = { latitude: 32.4255, longitude: 44.32423 };
+    </code>
+    <br/>
+    Also point can be in string format -
+    <br/>
+    <code>
+        msg.point1 = { latitude: "51° 31' N", longitude: "7° 28' E" }
+    </code>
+    <br/>
+    Result will be stored at <b>result path</b> as a number of meters between points
+</script>

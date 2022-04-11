@@ -1,0 +1,19 @@
+{
+  "name": "node-red-contrib-rollun-geolib",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "node-red"
+  ],
+  "dependencies": {
+    "geolib": "^3.3.3",
+    "lodash": "^4.17.21"
+  },
+  "node-red": {
+    "nodes": {
+      "get-distance": "get-distance.js"
+    }
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -14,7 +14,8 @@
   ],
   "node-red": {
     "nodes": {
-      "ebay-api": "ebay-api.js"
+      "ebay-api": "ebay-api.js",
+      "ebay-config": "ebay-config.js"
     }
   },
   "dependencies": {

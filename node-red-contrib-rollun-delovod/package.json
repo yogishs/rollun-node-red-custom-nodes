@@ -8,7 +8,17 @@
   "node-red": {
     "nodes": {
       "delovod-config": "delovod-config.js",
-      "delovod-api-request": "delovod-api-request.js"
+      "delovod-api-request": "delovod-api-request.js",
+      "delovod-api-request-v2": "delovod-api-request-v2.js",
+      "delovod-catalog-good": "delovod-catalog-good.js",
+      "delovod-create-item": "delovod-create-item.js",
+      "delovod-del-doc": "delovod-del-doc.js",
+      "delovod-tablepart-tpGoods": "delovod-tablepart-tpGoods.js",
+      "delovod-tablepart": "delovod-tablepart.js",
+      "delovod-register": "delovod-register.js",
+      "delovod-post-document": "delovod-post-document.js",
+      "delovod-get-items": "delovod-get-items.js",
+      "delovod-get-item": "delovod-get-item.js"
     }
   }
 }
