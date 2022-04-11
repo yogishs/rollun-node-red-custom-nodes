@@ -1,7 +1,7 @@
 node-red-contrib-rollun-query-from-table
 ================
 
-Node-RED nodes for using openapi manifests, requests and validation
+Node-RED nodes for CRUD operation upon rollun datastores 
 
 ## Nodes
 List of nodes:

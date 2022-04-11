@@ -1,0 +1,25 @@
+<script type="text/javascript">
+  RED.nodes.registerType('gsheets-config', {
+    category: 'config',
+    defaults: {
+      creds: {value: "", required: true},
+      name: {value: ""}
+    },
+    label: function () {
+      return this.name || 'GSheet config';
+    }
+  });
+
+
+</script>
+
+<script type="text/html" data-template-name="gsheets-config">
+    <div class="form-row">
+        <label for="node-config-input-creds"><i class="icon-bookmark"></i> Creds</label>
+        <textarea  id="node-config-input-creds"></textarea>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Config Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+</script>

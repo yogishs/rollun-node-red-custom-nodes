@@ -1,0 +1,300 @@
+<script type="text/javascript">
+  "use strict";
+
+  const config = {
+    category: 'Rollun',
+    inputs: 1,
+    outputs: 2,
+    color: "#bce4d0",
+    icon: "google-logo.png",
+    paletteLabel: 'GSheets SDK',
+    defaults: {
+      config: {
+        value: "",
+        type: "gsheets-config",
+        required: true
+      },
+      sheetURL: {
+        value: 'str|https://docs.google.com/spreadsheets/d/example'
+      },
+      action: {
+        value: 'getCells',
+      },
+      payload: {
+        value: '{}',
+      },
+      name: {
+        value: ""
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || 'GSheets SDK'
+    },
+    oneditprepare: function () {
+      const node = this;
+      window.utils.makeTypedInput('sheetURL', ['msg', 'str', 'num'], 'Sheet URL', node.sheetURL);
+      const payloadEl = $('#node-input-payload');
+
+      const setPayloadProp = (path, value) => {
+        const payload = JSON.parse(payloadEl.val());
+        _.set(payload, path, value);
+        payloadEl.val(JSON.stringify(payload));
+        return value;
+      };
+
+      const unsetPayloadValue = (path) => {
+        const payload = JSON.parse(payloadEl.val());
+        _.unset(payload, path);
+        payloadEl.val(JSON.stringify(payload));
+      };
+
+      const getPayloadProp = (path) => {
+        const payload = JSON.parse(payloadEl.val());
+        return _.get(payload, path);
+      }
+
+      const resetPayload = (value = {}) => {
+        payloadEl.val(JSON.stringify(value));
+      }
+
+      const getPayload = () => {
+        return JSON.parse(payloadEl.val());
+      }
+
+      const payloadHistory = {
+        [node.action]: getPayload(),
+      };
+
+      const actionsConfigs = {
+        getRows: {
+          info: 'Fetch rows from google sheet by range',
+          fields: [
+            { name: 'from', info: 'Minimal value is 2', example: 2 },
+            { name: 'to', info: 'Minimal value is 2', example: 3 },
+            {
+              name: 'returnRaw',
+              type: 'checkbox',
+              info: 'If enabled, result will be in a format of raw google sheet ref, and json array otherwise'
+            },
+          ],
+          output: {
+            info: 'Data from sheet by specified range',
+            example: { row: { field1: 'test', field2: 'test' }, rowNumber: 2 },
+          },
+        },
+        getCells: {
+          info: 'Fetch cells in specific range',
+          fields: [
+            { name: 'cells', example: 'A1:C2' },
+            {
+              name: 'returnRaw',
+              type: 'checkbox',
+              info: 'If enabled, result will be in a format of raw google sheet ref, and json array otherwise'
+            },
+          ],
+          output: {
+            info: 'Data from sheet by specified range',
+            example: { row: { field1: 'test', field2: 'test' }, rowNumber: 2 },
+          },
+        },
+        updateRow: {
+          info: 'Update row by it\'s index',
+          fields: [
+            {
+              name: 'rowIndex',
+              info: 'Row index as a number, can be found on the left side of sheet. Minimal value is 2',
+              example: 2
+            },
+            {
+              name: 'rowData',
+              info: 'Object, that represents which fields you want to update in a row',
+              example: { field1: 'test' }
+            },
+          ]
+        },
+        updateRows: {
+          info: 'Update rows starting at index',
+          fields: [
+            {
+              name: 'startRowIndex',
+              info: 'Row index as a number, can be found on the left side of sheet. Minimal value is 2',
+              example: 2
+            },
+            {
+              name: 'rowsData',
+              info: 'Array of objects, that represents which fields you want to update in a rows',
+              example: [{ field1: 'test' }]
+            },
+          ]
+        },
+        appendRow: {
+          info: 'Add row to the end of sheet',
+          fields: [
+            {
+              name: 'rowData',
+              info: 'Object, that represents row that ypu want to append to sheet',
+              example: { field1: 'test' },
+            }
+          ],
+          output: {
+            info: 'Data from your new row',
+            example: { field1: 'test', field2: '' },
+          },
+        }
+      }
+
+      function getLabelEl(name) {
+        const formatted = name
+          .replace(/([a-z])([A-Z])/g, (full, last, first) => `${last} ${first.toLowerCase()}`)
+          .replace(/^(.)/, (full, match) => match.toUpperCase());
+        return $(`<h3 style="margin-top: 10px">${formatted}</h3>`)
+      }
+
+      function getHeaderEl(name, info, example) {
+        const header = $('<div>')
+          .append(getLabelEl(name));
+        if (info) {
+          header.append($(`<p>${info}</p>`));
+        }
+        if (example) {
+          header
+            .append(
+              $(`<p>Example:</p>`),
+              $(`<pre>${typeof example === 'object'
+                ? JSON.stringify(example, null, 2)
+                : example
+              }</pre>`)
+            )
+        }
+
+        return header;
+      }
+
+      function getFooterEl(output) {
+        const footer = $('<div>')
+          .append($('<h2>Output:</h2>'));
+        if (output) {
+          footer
+            .append(
+              $(`<p>${output.info}</p>`),
+              $(`<p>Output will be in <code>msg.payload</code></p>`),
+            );
+          if (output.example) {
+            footer.append(
+              $(`<p>Example:</p>`),
+              $(`<pre>${JSON.stringify(output.example, null, 2)}</pre>`)
+            )
+          }
+        } else {
+          footer.append($(`<p>No output</p>`))
+        }
+        return footer;
+      }
+
+      function renderTypedInput(container, { name, info, example }) {
+        const typedValue = getPayloadProp(name) || setPayloadProp(name, 'msg|example');
+
+        const input = $(`<input style="width: 100%" id="payload-${name}">`);
+
+        container.append(
+          $(`<div class="form-row">`)
+            .append(getHeaderEl(name, info, example), input)
+        );
+
+        const types = ['msg', 'str', 'num'];
+        const [type, value = ''] = typedValue.split('|');
+
+        $(input)
+          .typedInput({ types: types, width: 400 })
+          .typedInput('value', value)
+          .typedInput('type', type)
+          .on('change', (e, type) => {
+            if (type === true) return;
+            setPayloadProp(name, `${type}|${e.target.value}`)
+          });
+      }
+
+      function renderCheckBox(container, { name, info, example }) {
+        const initValue = getPayloadProp(name) || setPayloadProp(name, false);
+
+        const input = $(`<input
+                        style="width: 20px; margin-top: -5px; transform: scale(1.5);"
+                        type="checkbox"
+                        ${initValue ? 'checked' : ''}>
+                        `);
+        input.change(e => e.target.checked ? setPayloadProp(name, e.target.checked) : unsetPayloadValue(name));
+
+        container.append(
+          $(`<div class="form-row">`)
+            .append(getHeaderEl(name, info, example), input)
+        );
+      }
+
+      function renderPayloadForm(action) {
+        const container = $('#payload');
+        // reset container
+        container.html('');
+        const { info, fields, output } = actionsConfigs[action];
+
+        container.append($(`<p>${info}</p>`));
+        for (const config of fields) {
+          const { type } = config;
+          if (!type || type === 'typed') {
+            renderTypedInput(container, config);
+          } else if (type === 'checkbox') {
+            renderCheckBox(container, config);
+          }
+        }
+        container.append(getFooterEl(output));
+      }
+
+      renderPayloadForm(node.action);
+
+      let prevSelectValue =  node.action;
+      $('#node-input-action')
+        .on('focus', function () {
+          // Store the current value on focus and on change
+          payloadHistory[this.value] = getPayload();
+          prevSelectValue = this.value;
+          console.log('focus', this.value, payloadHistory);
+        })
+        .change(e => {
+          console.log('change', e.target.value, prevSelectValue, payloadHistory);
+          if (e.target.value !== prevSelectValue) {
+            console.log('rest payload to', payloadHistory[e.target.value])
+            resetPayload(payloadHistory[e.target.value]);
+          }
+          renderPayloadForm(e.target.value);
+          prevSelectValue = e.target.value;
+        })
+    }
+  };
+
+  RED.nodes.registerType('gsheets-sdk', config);
+</script>
+
+<script type="text/html" data-template-name="gsheets-sdk">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row" id="sheetURL"></div>
+    <div class="form-row">
+        <label style="font-weight: bold; font-size: 20px;" for="node-input-action">Action</label>
+        <select id="node-input-action">
+            <option value="getRows">Get rows</option>
+            <option value="getCells">Get cells</option>
+            <option value="updateRow">Update row</option>
+            <option value="updateRows">Update rows</option>
+            <option value="appendRow">Append row</option>
+        </select>
+    </div>
+    <div id="node-input-payload"></div>
+    <div id="payload"></div>
+</script>

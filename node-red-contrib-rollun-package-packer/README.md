@@ -1,7 +1,7 @@
 node-red-contrib-rollun-package-packer
 ================
 
-Node-RED nodes for using openapi manifests, requests and validation
+Node-RED nodes for finding distance between two places 
 
 ## Nodes
 List of nodes:

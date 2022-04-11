@@ -1,7 +1,7 @@
 node-red-contrib-rollun-parts-unlimited
 ================
 
-Node-RED nodes for using openapi manifests, requests and validation
+Node-RED nodes for interacting with parts unlimited api 
 
 ## Nodes
 List of nodes:

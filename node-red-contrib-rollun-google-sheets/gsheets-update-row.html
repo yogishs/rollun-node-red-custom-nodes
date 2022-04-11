@@ -1,0 +1,86 @@
+<script type="text/javascript">
+  "use strict";
+  (function () {
+    const configFactory = ({paletteLabel, defaultName}) => ({
+      category: 'Rollun',
+      inputs: 1,
+      outputs: 2,
+      color: "#bce4d0",
+      icon: "icons/node-red/white-globe.svg",
+      paletteLabel: paletteLabel,
+      defaults: {
+        config: {
+          value: "", type: "gsheets-config",
+          required: true
+        },
+        sheetURL: {
+          value: 'const|https://docs.google.com/spreadsheets/d/example'
+        },
+        rowIndex: {
+          value: 'const|1',
+        },
+        rowData: {
+          value: 'msg|payload',
+        },
+        name: {
+          value: ""
+        }
+      },
+      label: function () {
+        return this.name || defaultName
+      },
+      oneditprepare: function () {
+        const node = this;
+        window.utils.makeTypedInput('sheetURL', undefined, undefined, node.sheetURL);
+        window.utils.makeTypedInput('rowIndex', undefined, undefined, node.rowIndex);
+        window.utils.makeTypedInput('rowData', undefined, undefined, node.rowData);
+      }
+    })
+
+    RED.nodes.registerType(
+      'gsheets-update-row',
+      configFactory({paletteLabel: "gsheets-update-row", defaultName: 'Gsheet update row'})
+    );
+  })();
+</script>
+
+<script type="text/html" data-template-name="gsheets-update-row">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row" id="sheetURL"></div>
+    <div class="form-row" id="rowIndex"></div>
+    <div class="form-row" id="rowData"></div>
+</script>
+
+<script type="text/html" data-help-name="gsheets-update-row">
+    <h1>gsheets-update-rows-raw - node, updates row in GSheet</h1>
+
+    Inputs:
+
+    <ul>
+        <li>sheetURL - url of Google sheet, just copy from browser</li>
+        <li>rowIndex - index of row in sheet, can be found on left side of sheet</li>
+        <li>rowData  - data, you want to update. This data will be merged with current row</li>
+    </ul>
+
+    Examples of rowData
+
+    <pre>
+        {
+           "key": "value",
+           "key2": null
+        }
+    </pre>
+
+    Outputs:
+    <ol>
+        <li>1 - error, <code>{"error": "message"}</code> will be returned</li>
+        <li>2 - success, <code>msg</code> will not be modified</li>
+    </ol>
+</script>
