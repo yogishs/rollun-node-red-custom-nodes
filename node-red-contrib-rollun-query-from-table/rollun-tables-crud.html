@@ -1,0 +1,135 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('rollun-tables-crud', {
+    category: 'Rollun Tables',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "Rollun table CRUD",
+    defaults: {
+      name: {
+        value: ''
+      },
+      tableURL: {
+        value: ''
+      },
+      url: {
+        value: '',
+      },
+      timeout: {
+        value: 10000,
+      },
+      idField: {
+        value: 'id'
+      },
+      action: {
+        value: 'query'
+      },
+      payload: {
+        value: 'const|limit(1,0)'
+      },
+      log: {
+        value: false,
+      }
+    },
+
+    label: function () {
+      return this.name || `${this.action} item from table`;
+    },
+    oneditprepare() {
+      const node = this;
+      window.utils.makeTypedInput('payload', undefined, 'Action payload', node.payload);
+      const errorMSgField = $('#error-msg');
+
+      errorMSgField.on('click', () => errorMSgField.html(''));
+      $('#node-input-tableURL')
+        .on('change', window.utils.debounce((e) => {
+          window.setPrivateDatastoreUrlFromInput(e.target.value.trim(), errorMSgField)
+        }, 500))
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="rollun-tables-crud">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <h3 style="color: #AD1625" id="error-msg"></h3>
+    <div class="form-row" id="table-name">
+        <label for="node-input-tableURL">Table URL</label>
+        <input type="text" id="node-input-tableURL">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url">Datastore URL</label>
+        <input type="text" id="node-input-url">
+    </div>
+    <div class="form-row">
+        <label for="node-input-timeout">Timeout (in ms)</label>
+        <input type="number" id="node-input-timeout">
+    </div>
+    <div class="form-row">
+        <label for="node-input-idField">ID field</label>
+        <input type="text" id="node-input-idField">
+    </div>
+    <div class="form-row">
+        <label for="node-input-action">Action</label>
+        <select id="node-input-action">
+            <option value="query">query</option>
+            <option value="read">read</option>
+            <option value="getFirst">getFirst</option>
+            <option value="create">create</option>
+            <option value="update">update</option>
+            <option value="delete">delete</option>
+        </select>
+    </div>
+    <div class="form-row" id="payload">
+    </div>
+    <div class="">
+        <span> Log request</span>
+        <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-log">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rollun-tables-crud">
+    <hr>
+    <h3>Input</h3>
+    <h5>A simple node, performes request to table using value from <b>Action payload</b></h5>
+    <dl class="message-properties">
+        <dt class="optional">Table URL <span class="property-type">string</span> - url of table in rollun.net, example -
+            https://rollun.net/CatalogDataStore
+        </dt>
+        <dt class="optional">Datastore URL <span class="property-type">string</span> - name of datastore, will be filled
+            automatically, after Table URL example - http://catalog/api/datastore/CatalogDataStore
+        </dt>
+        <dt class="optional">
+    </dl>
+    <h5>Action payload depends on action:</h5>
+    <ul>
+        <li><b>Query</b> - RQL expresion, You can find it in url of rollun table after setting up filter. example -
+            ge(qty,5)&limit(20,0)
+        </li>
+        <li><b>getFirst</b> - RQL expresion, You can find it in url of rollun table after setting up filter. example -
+            ge(qty,5)&limit(20,0)
+        </li>
+        <li><b>Read</b> - id of item</li>
+        <li><b>Create</b> - item to create</li>
+        <li><b>Update</b> - item to update (must include id field to update properly)</li>
+        <li><b>Delete</b> - id of item</li>
+    </ul>
+    Note: in RQL expresion, values can be: constants - eq(id,123), values from <code>msg.</code> - eq(id,msg.payload.id)
+    <hr/>
+    <h3>Output</h3>
+    <h4>1 output - to <code>msg.payload</code> will be passed error, returned from request </h4>
+    <h5>2 output - Returns: </h5>
+    <ul>
+        <li><b>Query</b> - data, found by query</li>
+        <li><b>getFirst</b> - first item found by query, if found no items - null</li>
+        <li><b>Read</b> - found item or null</li>
+        <li><b>Create</b> - created item</li>
+        <li><b>Update</b> - updated item</li>
+        <li><b>Delete</b> - deleted item</li>
+    </ul>
+</script>

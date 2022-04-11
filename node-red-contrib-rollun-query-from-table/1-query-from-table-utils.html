@@ -1,0 +1,39 @@
+<script type="text/javascript">
+    window.setPrivateDatastoreUrlFromInput = async (value, errorMsgField) => {
+      if (value.length === 0) return;
+      try {
+        errorMsgField.text('');
+        const dataStore = new window.utils.datastore('https://rollun.net');
+
+        const [pathname = ''] = value.split('?');
+
+        const pagePath = window.utils.last(pathname.split('/'));
+        if (!pagePath) throw new Error('pagePath is empty!');
+
+        const pages = await dataStore.get('/api/datastore/UserFrontConfig');
+
+        const pageConfig = pages.find(page => page.config.appPath === ('/' + pagePath));
+        if (!pageConfig) throw new Error('Couldn`t find config for this page is not found!');
+
+        const pageDatastore = pageConfig.config?.appParams?.gridParams?.datastoreUrl;
+        if (!pageDatastore) throw new Error('No datastore found for this page!');
+
+        const datastoreName = window.utils.last(pageDatastore.split('/'));
+        if (!datastoreName) throw new Error('Datastore name if empty');
+
+        const datastores = await dataStore.get('/api/webhook/HttpDataStoreList');
+
+        const datastore = datastores.find(ds => ds.name === datastoreName) || {
+          url: `http://rollun-net-prvt/api/private/datastore/${datastoreName}`
+        };
+        if (!datastore) throw new Error('datastore is not found')
+
+        // const fields = ['id', 'field_1', 'field_2'];
+        // const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
+
+        $('#node-input-url').val(datastore.url);
+      } catch (e) {
+        errorMsgField.text('Error: ' + (e.message || 'Unknown error'));
+      }
+    }
+</script>

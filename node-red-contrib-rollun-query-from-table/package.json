@@ -1,0 +1,20 @@
+{
+  "name": "node-red-contrib-rollun-query-from-table",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "node-red-contrib-rollun-backend-utils": "^1.0.0"
+  },
+  "keywords": [
+    "node-red"
+  ],
+  "node-red": {
+    "nodes": {
+      "rollun-tables-crud": "rollun-tables-crud.js",
+      "rollun-tables-get-item": "rollun-tables-get-item.js",
+      "rollun-tables-get-items": "rollun-tables-get-items.js"
+    }
+  },
+  "author": "",
+  "license": "ISC"
+}
