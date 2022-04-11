@@ -1,0 +1,266 @@
+<script type="text/javascript">
+  (function () {
+    function isString(v) {
+      return typeof v === 'string';
+    }
+
+    function isPlainObject(v) {
+      return $.isPlainObject(v);
+    }
+
+    function toNativePomise(jqPromise) {
+      return new Promise((resolve, reject) => {
+        jqPromise.then(resolve).catch(reject);
+      });
+    }
+
+    function compare(current, next) {
+      return toNativePomise(
+        $.post('openapi/compare', { current, next }),
+      );
+    }
+
+    RED.nodes.registerType('rollun-openapi-manifest', {
+      category: 'config',
+      defaults: {
+        name: {
+          value: 'OpenAPI Schema',
+          required: true,
+          validate: isString,
+        },
+        schema: {
+          value: null,
+          required: true,
+          validate: input => {
+            return isPlainObject(input);
+          },
+        },
+        baseURL: {
+          value: "/",
+        },
+        schemaUrl: {
+          value: '',
+        }
+      },
+      icon: 'icon.png',
+      inputs: 0,
+      outputs: 1,
+      color: '#63db2a',
+      label: function () {
+        return this.name || 'OpenAPI Schema';
+      },
+      labelStyle: function () {
+        return this.name ? 'node_label_italic' : '';
+      },
+      oneditprepare: function () {
+        const node = this;
+        const input = $('#schema-file');
+        const inputTitle = $('#schema-file-title');
+        const current = $('#schema');
+        const selectButton = $('#schema-file-select-button');
+        const addButton = $('#schema-file-add-button');
+        const fetchFromUrlButton = $('#schema-url-fetch-button');
+        const inputUrl = $('#node-config-input-schemaUrl');
+        const renderSwaggerUi = (link) => {
+          const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+          $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+        }
+
+        const setHistory = () => {
+          if (node.history != null) {
+            return;
+          }
+
+          node.history = {
+            schema: node.schema,
+            name: node.name,
+          };
+        };
+        const toggle = (element, disable) => {
+          if (disable) {
+            element.addClass('disabled');
+          } else {
+            element.removeClass('disabled');
+          }
+        };
+        const renderInputTitle = () => {
+          const fileName = input.val();
+          let text = 'select a file to import';
+
+          if (fileName) {
+            text = fileName.split('\\').pop();
+          }
+
+          inputTitle.text(text);
+        };
+        const renderCurrent = () => {
+          current.empty();
+
+          const schema = node.schema;
+
+          if (schema == null) {
+            current.append('<span>None</span>');
+
+            return;
+          }
+
+          let title = 'Unknown file';
+
+          if (schema.info != null) {
+            title = `${schema.info.title}:v${schema.info.version}`;
+          }
+
+          current.append(`
+                        <span>${title}</span>
+                        <button class="red-ui-button openapi-remove-btn">Remove</button>
+                    `);
+
+          renderSwaggerUi(inputUrl.val());
+        };
+
+        toggle(addButton, true);
+
+        selectButton.click(() => input.trigger('click'));
+
+        input.change(function onFileSelect() {
+          const fileName = $(this).val();
+
+          toggle(addButton, !fileName);
+          renderInputTitle();
+        });
+
+        function handleNewManifest(content) {
+          const next = content;
+
+          if (!next.openapi) {
+            alert('Invalid OpenAPI schema');
+
+            return;
+          }
+
+          if (node.schema) {
+            return compare(node.schema, next).then((equal) => {
+              if (!equal) {
+                node.schema = next;
+
+                return;
+              }
+
+              alert('File is already added');
+            });
+          }
+
+          renderSwaggerUi(inputUrl.val());
+
+          node.schema = next;
+          $('#node-config-input-name')
+            .val(`${next.info?.title || 'OpenAPI manifest'} v${next.info?.version || next.openapi}`);
+        }
+
+        addButton.click(() => {
+          const file = input.prop('files')[0];
+
+          if (file == null) {
+            return;
+          }
+
+          toggle(addButton, true);
+          toggle(input, true);
+
+          file.text()
+            .then(content => {
+              const next = JSON.parse(content);
+              handleNewManifest(next);
+            })
+            .catch(err => {
+              alert('Failed to load file');
+
+              console.error(err);
+            })
+            .finally(() => {
+              toggle(addButton, false);
+              toggle(input, false);
+              renderCurrent();
+            });
+        });
+
+        fetchFromUrlButton.click(() => {
+          const url = inputUrl.val();
+          fetch('/openapi/fetch?url=' + encodeURIComponent(url))
+            .then(res => res.json())
+            .then(manifest => handleNewManifest(manifest))
+            .catch(err => {
+              alert('Failed to load file');
+              console.error(err);
+            })
+            .finally(() => {
+              renderCurrent();
+            })
+        });
+
+        current.on('click', '.openapi-remove-btn', () => {
+          setHistory();
+          node.schema = null;
+          renderCurrent();
+        });
+
+        renderInputTitle();
+        renderCurrent();
+      },
+      oneditcancel: function () {
+        if (!this.history) {
+          return;
+        }
+
+        this.name = this.history.name;
+        this.schema = this.history.schema;
+      },
+    });
+  })();
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-manifest">
+<!--    <div class="form-row">-->
+<!--        <label for="schema-file-select-button"><i class="fa fa-upload"></i> Upload: </label>-->
+<!--        <a class="red-ui-button" id="schema-file-select-button">-->
+<!--            <i class="fa fa-upload"></i>-->
+<!--            <span id="schema-file-title">select a file to import</span>-->
+<!--        </a>-->
+<!--        <input id="schema-file" type="file" accept=".json" style="display:none">-->
+<!--        <button id="schema-file-add-button" class="red-ui-button primary">Use</button>-->
+<!--    </div>-->
+    <div class="form-row">
+        <label for="schema-url-fetch-button"><i class="fa fa-upload"></i> Fetch: </label>
+        <input id="node-config-input-schemaUrl" type="text">
+        <button id="schema-url-fetch-button" class="red-ui-button primary">Fetch</button>
+    </div>
+    <div class="form-row">
+        <label for="schema"><i class="fa fa-code"></i> Current: </label>
+        <div id="schema" style="display: inline-block;"></div>
+    </div>
+<!--    <div class="form-row">-->
+<!--        <label for="node-config-input-baseURL"><i class="fa fa-link"></i> Base URL: </label>-->
+<!--        <input type="text" id="node-config-input-baseURL" />-->
+<!--    </div>-->
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name: </label>
+        <input type="text" id="node-config-input-name" />
+    </div>
+    <div class="form-tips"><b>Tip:</b> This is here to help.</div>
+    <div id="swagger-ui"></div>
+
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-manifest">
+    OpenAPI manifest.
+
+    Enter a link and press fetch to save manifest. Manifest is not updated automatically if it is changed.
+    You will need to fetch it again.
+</script>

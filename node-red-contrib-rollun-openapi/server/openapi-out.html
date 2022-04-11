@@ -1,0 +1,81 @@
+<script type="text/javascript">
+  (function () {
+    function isString(v) {
+      return typeof v === 'string';
+    }
+
+    RED.nodes.registerType('rollun-openapi-out', {
+      category: 'network',
+      defaults: {
+        name: {
+          value: '',
+          required: false,
+          validate: isString,
+        },
+        data: {
+          value: 'msg|payload',
+        },
+        messages: {
+          value: 'msg|messages',
+        },
+        disableGenerationOfExceptionMessage: {
+          value: false,
+        }
+      },
+      inputs: 1,
+      outputs: 0,
+      color: '#63db2a',
+      label: function () {
+        return this.name || 'OpenAPI Response';
+      },
+      labelStyle: function () {
+        return this.name ? 'node_label_italic' : '';
+      },
+      icon: 'icon.png',
+      oneditprepare: function () {
+        window.utils.makeTypedInput('data', [{
+          value: "msg",
+          label: "msg."
+        }], undefined, this.data);
+
+        window.utils.makeTypedInput('messages', [{
+          value: "msg",
+          label: "msg."
+        }], undefined, this.messages);
+      },
+    });
+  })();
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-out">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row" id="data"></div>
+    <div class="form-row" id="messages"></div>
+    <div class="">
+        <span> Disable auto-generation of error message from exception</span>
+        <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-disableGenerationOfExceptionMessage">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-out">
+    OpenAPI Out node
+
+    To end request that you received with OpenAPI in node, end your pipeline with this node.
+
+    Response format will be:
+
+    <pre>
+    {
+        "data": ...,
+        "messages": [ ... ],
+    }
+    </pre>
+
+    <ol>
+        <li><code>data</code> - data, that you want to return in request</li>
+        <li><code></messages> - messages, that you want to return in this request</li>
+    </ol>
+</script>

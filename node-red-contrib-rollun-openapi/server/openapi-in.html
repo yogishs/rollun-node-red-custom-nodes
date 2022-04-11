@@ -1,0 +1,191 @@
+<script type="text/javascript">
+  (function () {
+    function isString(v) {
+      return typeof v === 'string';
+    }
+
+    function toNativePomise(jqPromise) {
+      return new Promise((resolve, reject) => {
+        jqPromise.then(resolve).catch(reject);
+      });
+    }
+
+    function getMethodName(method, path) {
+      // console.log(method, path);
+      return `${method} ${path}`;
+    }
+
+    RED.nodes.registerType('rollun-openapi-in', {
+      category: 'network',
+      defaults: {
+        name: {
+          value: '',
+          required: false,
+          validate: isString,
+        },
+        schema: {
+          value: '',
+          required: true,
+          type: 'rollun-openapi-manifest',
+        },
+        operation: {
+          value: '',
+          required: true,
+          validate: isString,
+        },
+      },
+      inputs: 0,
+      outputs: 1,
+      color: '#63db2a',
+      label: function () {
+        const config = this.schema && RED.nodes.node(this.schema);
+        if (config) {
+          return `[${config.name}] ${this.operation}`;
+        }
+        return this.name || 'OpenAPI In';
+      },
+      labelStyle: function () {
+        return this.name ? 'node_label_italic' : '';
+      },
+      icon: 'icon.png',
+      oneditprepare: function () {
+        const node = this;
+        let paths;
+        const $schema = $('#node-input-schema');
+        const $operation = $('#node-input-operation');
+        const renderSwaggerUi = (link) => {
+          const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+          $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+        }
+        const toggle = ($element, disable) => {
+          if (disable) {
+            $element.addClass('disabled');
+          } else {
+            $element.removeClass('disabled');
+          }
+        };
+        const renderOperations = () => {
+          $operation.empty();
+
+          if (paths == null) {
+            return;
+          }
+
+          const currentOperationId = this.operation;
+
+          $.each(paths, (path, methods) => {
+            $.each(methods, (name) => {
+              const selected =
+                getMethodName(name, path) === currentOperationId
+                  ? 'selected'
+                  : '';
+
+              $operation.append(`
+                                <option value="${getMethodName(name, path)}" ${
+                selected ? 'selected' : ''
+              }>[${name.toUpperCase()}] ${path}</option>
+                            `);
+            });
+          });
+        };
+        const loadPaths = configId => {
+          return toNativePomise(
+            $.getJSON(`openapi/${configId}/paths`),
+          );
+        };
+        const readPaths = configId => {
+          let result;
+
+          RED.nodes.eachConfig(i => {
+            if (result != null) {
+              return false;
+            }
+
+            if (i.id === configId) {
+              if (i.schema) {
+                result = i.schema.paths;
+              }
+            }
+          });
+
+          if (result != null) {
+            return Promise.resolve(result);
+          }
+
+          return Promise.reject(new Error('not found'));
+        };
+
+        const initPaths = () => {
+          const configId = $schema.val();
+          paths = null;
+
+          if (configId === '_ADD_') {
+            return;
+          }
+
+          toggle($schema, true);
+          toggle($operation, true);
+
+          return readPaths(configId)
+            .then(data => {
+              paths = data;
+            })
+            .catch(err => {
+              alert('Failed to retrieve schema paths');
+
+              console.error(err);
+            })
+            .finally(() => {
+              renderOperations();
+              toggle($schema, false);
+              toggle($operation, false);
+            });
+        };
+
+        $schema.change(function () {
+          initPaths();
+
+          if (this.schema) {
+            const node = RED.nodes.node(this.schema);
+            renderSwaggerUi(node.schemaUrl);
+          }
+        });
+
+        if (this.schema) {
+          const node = RED.nodes.node(this.schema);
+          renderSwaggerUi(node.schemaUrl);
+        }
+      },
+    });
+  })();
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-in">
+    <div class="form-row">
+        <label for="node-input-schema"><i class="fa fa-book"></i> <span>Schema:</span></label>
+        <input type="text" id="node-input-schema">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tasks"></i> <span>Operation:</span></label>
+        <select id="node-input-operation"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span>Name:</span></label>
+        <input type="text" id="node-input-name" />
+    </div>
+    <div id="swagger-ui"></div>
+
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-in">
+    OpenAPI In node
+
+    Select an operation and node will listen http requests on this path
+</script>

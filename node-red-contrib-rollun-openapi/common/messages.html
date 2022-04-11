@@ -1,0 +1,84 @@
+<script type="text/javascript">
+  (function () {
+    function isString(v) {
+      return typeof v === 'string';
+    }
+
+    RED.nodes.registerType('rollun-openapi-messages', {
+      category: 'network',
+      defaults: {
+        name: {
+          value: '',
+          required: false,
+          validate: isString,
+        },
+        oldMessages: {
+          value: 'msg|',
+        },
+        level: {
+          value: 'error',
+          required: true,
+        },
+        fromMsg: {
+          value: 'msg|',
+        },
+        text: {
+          value: 'const|stub text',
+        },
+        msgType: {
+          value: 'const|stub type',
+        }
+      },
+      inputs: 1,
+      outputs: 1,
+      color: '#63db2a',
+      label: function () {
+        const [, value] = this.fromMsg.split('|');
+        return this.name || `Add ${value ? '' : this.level} message`;
+      },
+      labelStyle: function () {
+        return this.name ? 'node_label_italic' : '';
+      },
+      icon: 'icon.png',
+      oneditprepare: function () {
+        window.utils.makeTypedInput('oldMessages', [{
+          value: "msg",
+          label: "msg."
+        }], undefined, this.oldMessages);
+
+        window.utils.makeTypedInput('fromMsg', undefined, undefined, this.fromMsg);
+        window.utils.makeTypedInput('text', undefined, undefined, this.text);
+        window.utils.makeTypedInput('msgType', undefined, 'Type', this.msgType);
+      },
+    });
+  })();
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-messages">
+   <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row" id="oldMessages"></div>
+    <div class="form-tips"><b>Tip:</b> Old messages are optional, if you provide this value, new message will be added to old ones.</div>
+    <div class="form-row">
+    <label for="node-input-level"><i class="fa fa-tag"></i> Level</label>
+    <select id="node-input-level">
+       <option value="debug">debug</option>
+       <option value="notice">notice</option>
+       <option value="info">info</option>
+       <option value="warning">warning</option>
+       <option value="error">error</option>
+       <option value="alert">alert</option>
+       <option value="critical">critical</option>
+       <option value="emergency">emergency</option>
+    </select>
+    </div>
+    <div class="form-row" id="fromMsg"></div>
+    <div class="form-tips"><b>Tip:</b> If this value is provided, it will override 'Level'.</div>
+    <div class="form-row" id="msgType"></div>
+    <div class="form-row" id="text"></div>
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-messages">
+</script>

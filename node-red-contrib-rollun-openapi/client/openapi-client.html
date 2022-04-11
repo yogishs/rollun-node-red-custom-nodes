@@ -1,0 +1,148 @@
+<script src="../server/openapi-out.js"></script>
+<script type="text/javascript">
+  function getMethodName(method, path) {
+    // console.log(method, path);
+    return `${method} ${path}`;
+  }
+
+  RED.nodes.registerType('rollun-openapi-client', {
+    category: 'network',
+    defaults: {
+      name: {
+        value: '',
+        required: false,
+      },
+      schema: {
+        value: '',
+        required: true,
+        type: 'rollun-openapi-manifest',
+      },
+      operation: {
+        value: '',
+        required: true,
+      },
+      server: {
+        value: 0,
+      },
+      disableValidation: {
+        value: false,
+      },
+      body: {
+        value: 'msg|',
+      },
+      params: {
+        value: 'msg|',
+      },
+      headers: {
+        value: 'msg|',
+      },
+      query: {
+        value: 'msg|',
+      },
+    },
+    inputs: 1,
+    outputs: 2,
+    color: '#63db2a',
+    label: function () {
+      const config = this.schema && RED.nodes.node(this.schema);
+      if (config) {
+        return `[${config.name}] ${this.operation}`;
+      }
+      return this.name || 'OpenAPI Client';
+    },
+    labelStyle: function () {
+      return this.name ? 'node_label_italic' : '';
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success',
+      ][index]
+    },
+    icon: 'icon.png',
+    oneditprepare: function () {
+      const node = this;
+
+      window.utils.makeTypedInput('body', [{ value: "msg", label: "msg." }], undefined, this.body);
+      window.utils.makeTypedInput('params', [{ value: "msg", label: "msg." }], undefined, this.params);
+      window.utils.makeTypedInput('headers', [{ value: "msg", label: "msg." }], undefined, this.headers);
+      window.utils.makeTypedInput('query', [{ value: "msg", label: "msg." }], undefined, this.query);
+
+      const renderSwaggerUi = (link) => {
+        const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+        $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+      }
+
+      function render(config, url) {
+        $('#node-input-operation')
+          .html(Object.entries(config.paths).map(([path, methods]) => {
+            return Object.entries(methods).map(([method, { summary, description }]) => {
+              const operation = getMethodName(method, path);
+              const isSelected = operation === node.operation;
+              return `<option value="${operation}" ${isSelected ? 'selected' : ''}>${method.toUpperCase()} ${path} ${summary || description || ''}</option>`;
+            })
+          }).join('\n'));
+
+        $('#node-input-server')
+          .html(config.servers.map(({ url }, idx) => {
+            const isSelected = idx === +node.server;
+            return `<option value="${idx}" ${isSelected ? 'selected' : ''}>#${idx + 1} ${url}</option>`;
+          }).join('\n'));
+        renderSwaggerUi(url);
+      }
+
+      if (this.schema) {
+        const node = RED.nodes.node(this.schema);
+        render(node.schema, node.schemaUrl);
+      }
+    },
+  });
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-client">
+    <div class="form-row">
+        <label for="node-input-schema"><i class="fa fa-book"></i> <span>Schema:</span></label>
+        <input type="text" id="node-input-schema">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tasks"></i> <span>Operation:</span></label>
+        <select id="node-input-operation"></select>
+    </div>
+        <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-tasks"></i> <span>Server:</span></label>
+        <select id="node-input-server"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span>Name:</span></label>
+        <input type="text" id="node-input-name" />
+    </div>
+    <div class="">
+        <span> Disable client side request validation</span>
+        <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-disableValidation">
+    </div>
+    <h3>Inputs:</h3>
+    <div class="form-row" id="body"></div>
+    <div class="form-row" id="params"></div>
+    <div class="form-row" id="headers"></div>
+    <div class="form-row" id="query"></div>
+    <div class="form-tips"><b>Tip:</b> If you do not have some of the inputs, leave them empty.</div>
+    <div id="swagger-ui"></div>
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-client">
+    <h3>Open API client node</h3>
+    Inputs:
+    <ol>
+        <li><code>body</code> - POST/PUT body for request, leave empty if not needed </li>
+        <li><code>params</code> - variables in url before ? symbol. For example for url /User/{id} - id is a param </li>
+        <li><code>header</code> - headers for request</li>
+        <li><code>query</code> - query for request in url after ? symbol. for example in this url https://some.site/api?id=1 id is a query</li>
+    </ol>
+</script>
