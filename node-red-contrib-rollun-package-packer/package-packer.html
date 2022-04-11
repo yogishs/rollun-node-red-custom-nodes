@@ -1,0 +1,165 @@
+<script src="../node-red-contrib-common-utils/1-global-utils.js"></script>
+<script type="text/javascript">
+  "use strict";
+
+  RED.nodes.registerType('package-packer', {
+    category: 'Megaplan',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/fa-box.svg",
+    paletteLabel: "Pack packages",
+    defaults: {
+      containers: {
+        value: "msg|containers"
+      },
+      products: {
+        value: "msg|products",
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Pack packages';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('containers', [{
+        value: 'msg',
+        label: 'msg.'
+      }, {
+        value: 'json',
+        label: 'json',
+      }], 'Containers', this.containers);
+
+      window.utils.makeTypedInput('products', [{
+        value: 'msg',
+        label: 'msg.'
+      }, {
+        value: 'json',
+        label: 'json',
+      }], 'Products', this.products);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="package-packer">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row" id="containers">
+    </div>
+    <div class="form-row" id="products">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="package-packer">
+    Containers - array of containers, example -
+    <pre>
+    [
+        {
+            "name": "box",
+            "price": 1.22,
+            "width": 1,
+            "height": 1,
+            "length": 1,
+            "thickness": 0.01
+        }
+    ]
+    </pre>
+
+    Products (wrappers) - array of products - example -
+    <pre>
+     [
+        {
+            "name": "HFND2",
+            "width": 1,
+            "height": 1,
+            "length": 1,
+            "quantity": 2,
+        }
+     ]
+    </pre>
+
+    Node has 2 outputs, result will be in <code>msg.payload</code> -
+    <ol>
+        <li><b>error</b> - {"error": "some error"}</li>
+        <li><b>success</b> (example below)</li>
+    </ol>
+
+    <h4>Examples</h4>
+    <h5>Inputs</h5>
+    <pre>
+[
+    {
+        "name": "box",
+        "price": 1.22,
+        "width": 3,
+        "height": 4,
+        "length": 5,
+        "thickness": 0.01
+    }
+]
+    </pre>
+
+    products -
+    <pre>
+[
+    {
+        "name": "HFND2",
+        "width": 1,
+        "height": 1,
+        "length": 1,
+        "quantity": 2
+    }
+]
+    </pre>
+
+    <h4>Example success response</h4>
+    <pre>
+{
+   "cost":1.22,
+   "containersCount":1,
+   "containers":[
+      {
+         "name":"box",
+         "width":3,
+         "height":4,
+         "length":5,
+         "spaceUtilization":0.033861119835992985
+      }
+   ],
+   "items":[
+      {
+         "container": "box",
+         "name":"HFND2",
+         "position": {
+            "x":0.01,
+            "y":0.01,
+            "z":0.01
+         },
+         "layoutScale": {
+            "width":1,
+            "height":1,
+            "length":1
+         }
+      },
+      {
+         "container": "box",
+         "name":"HFND2",
+         "position": {
+            "x":1.01,
+            "y":0.01,
+            "z":0.01
+         },
+         "layoutScale": {
+            "width":1,
+            "height":1,
+            "length":1
+         }
+      }
+   ]
+}
+    </pre>
+</script>
