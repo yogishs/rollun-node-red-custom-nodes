@@ -1,0 +1,45 @@
+name: Deploy megaplan to npm
+
+on:
+  push:
+    paths:
+      - 'node-red-contrib-rollun-megaplan/**'
+    branches:
+      - master
+
+defaults:
+  run:
+    working-directory: node-red-contrib-rollun-megaplan
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache node_modules
+        uses: actions/cache@master
+        id:
+          cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package.json') }}
+
+      - name: Install dependecies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - run: git fetch origin
+      - run: npm --no-git-tag-version version $(git describe --tags --abbrev=0)
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

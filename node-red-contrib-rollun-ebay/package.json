@@ -19,6 +19,7 @@
     }
   },
   "dependencies": {
-    "superagent": "3.7.0"
+    "superagent": "3.7.0",
+    "node-red-contrib-rollun-backend-utils": "^1.0.0"
   }
 }

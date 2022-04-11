@@ -1,7 +1,7 @@
 node-red-contrib-rollun-geolib
 ================
 
-Node-RED node for interacting with ebay api
+Node-RED node for getting distance between two places 
 
 ## Nodes
 List of nodes:

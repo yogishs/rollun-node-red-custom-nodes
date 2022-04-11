@@ -1,0 +1,35 @@
+<script type="text/javascript">
+  RED.nodes.registerType('megaplan-config', {
+    category: 'config',
+    defaults: {
+      host: {value: "https://demo.megaplan.ru/", required: true},
+      email: {value: "", required: true},
+      password: {value: "", required: true},
+      name: {value: ""}
+    },
+    label: function () {
+      return this.name || this.host || 'Megaplan API V3 config';
+    }
+  });
+
+
+</script>
+
+<script type="text/html" data-template-name="megaplan-config">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="icon-bookmark"></i> Config Name</label>
+        <input type="text" id="node-config-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-host"><i class="icon-bookmark"></i> Host</label>
+        <input type="text" id="node-config-input-host">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-email"><i class="icon-bookmark"></i> Email</label>
+        <input type="text" id="node-config-input-email">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="icon-bookmark"></i> Password</label>
+        <input type="text" id="node-config-input-password">
+    </div>
+</script>

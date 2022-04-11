@@ -1,0 +1,76 @@
+<script type="text/javascript">
+  "use strict";
+
+  RED.nodes.registerType('megaplan-update-entity', {
+    category: 'Megaplan',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "update-entity",
+    defaults: {
+      config: {
+        value: "", type: "megaplan-config",
+        required: true
+      },
+      body: {
+        value: 'msg|payload.body'
+      },
+      entity: {
+        value: window.megaplan.entities[0]
+      },
+      entityId: {
+        value: 'msg|payload.id',
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Megaplan update item';
+    },
+    oneditprepare: function () {
+      $('#node-input-entity')
+        .html($.parseHTML(window.megaplan.entities
+          .map(entity => `<option value="${entity}" ${this.entity === entity ? 'selected' : ''}>${entity}</option>`)
+          .join('\n'))
+        );
+      window.utils.makeTypedInput('entityId');
+      window.utils.makeTypedInput('body');
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="megaplan-update-entity">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> Megaplan config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-entity"><i class="fa fa-server"></i> Entity</label>
+        <select id="node-input-entity">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-entityId"><i class="fa fa-server"></i> Entity ID</label>
+        <input type="hidden" id="node-input-entityId">
+        <input type="text" id="node-input-entityId-view">
+    </div>
+    <div class="form-row">
+        <label for="node-input-body"><i class="fa fa-server"></i> Body</label>
+        <input type="hidden" id="node-input-body">
+        <input type="text" id="node-input-body-view">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="megaplan-update-entity">
+    <h4>A simple node, updates entity in  megaplan</h4>
+    <code>body</code> - object of updated fields in megaplan entity
+    <h5>1 output - in case of error, data from <code>meta field</code> will be here</h5>
+    <h5>2 output - in case of success, data from <code>data field</code> will be here</h5>
+</script>
