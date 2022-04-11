@@ -1,0 +1,53 @@
+<script type="text/javascript">
+  RED.nodes.registerType('ebay-config', {
+    category: 'config',
+    defaults: {
+      name: {value: ""},
+      refreshToken: {value: "", required: true},
+      clientId: {value: "", required: true},
+      clientSecret: {value: "", required: true},
+      scopes: {
+        value: `https://api.ebay.com/oauth/api_scope
+                https://api.ebay.com/oauth/api_scope/sell.marketing.readonly
+                https://api.ebay.com/oauth/api_scope/sell.marketing
+                https://api.ebay.com/oauth/api_scope/sell.inventory.readonly
+                https://api.ebay.com/oauth/api_scope/sell.inventory
+                https://api.ebay.com/oauth/api_scope/sell.account.readonly
+                https://api.ebay.com/oauth/api_scope/sell.account
+                https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly
+                https://api.ebay.com/oauth/api_scope/sell.fulfillment
+                https://api.ebay.com/oauth/api_scope/sell.analytics.readonly
+                https://api.ebay.com/oauth/api_scope/sell.finances
+                https://api.ebay.com/oauth/api_scope/sell.payment.dispute
+                https://api.ebay.com/oauth/api_scope/commerce.identity.readonly`
+      },
+    },
+    label: function () {
+      return this.name || 'Ebay API config';
+    }
+  });
+
+
+</script>
+
+<script type="text/html" data-template-name="ebay-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="icon-bookmark"></i> Config Name</label>
+    <input type="text" id="node-config-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-refreshToken">Refresh Token</label>
+    <input type="password" id="node-config-input-refreshToken">
+  </div>
+  <h3><a href="https://rollun.net/EbayRefreshToken" style="color: cornflowerblue">How to get refresh token</a></h3>
+  <div class="form-row">
+    <label for="node-config-input-clientId">Client Id</label>
+    <input type="text" id="node-config-input-clientId">
+  </div>
+  <h3><a href="https://developer.ebay.com/api-docs/static/oauth-redirect-uri.html" style="color: cornflowerblue">Client ID doc</a></h3>
+  <div class="form-row">
+    <label for="node-config-input-clientSecret"> Client Secret</label>
+    <input type="password" id="node-config-input-clientSecret">
+  </div>
+  <h3><a href="https://developer.ebay.com/api-docs/static/oauth-credentials.html" style="color: cornflowerblue">Client secret</a></h3>
+</script>

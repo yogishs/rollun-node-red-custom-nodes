@@ -1,0 +1,356 @@
+<script type="text/javascript">
+  "use strict";
+  const ebayApiConfig = Object.freeze({
+    sell: {
+      getOrder: {
+        docURL: 'https://developer.ebay.com/api-docs/sell/fulfillment/resources/order/methods/getOrder',
+        config: 'orderId'
+      },
+      getOrders: {
+        docURL: 'https://developer.ebay.com/api-docs/sell/fulfillment/resources/order/methods/getOrders',
+        config: [{
+          type: 'string',
+          name: 'limit',
+          default: 20
+        }, {
+          type: 'string',
+          name: 'offset',
+          default: 0
+        }, {
+          type: 'filter',
+          name: 'filter',
+          fields: [{
+            type: 'datetime-range',
+            name: 'creationdate'
+          }, {
+            type: 'datetime-range',
+            name: 'lastmodifieddate'
+          }, {
+            type: 'enum',
+            name: 'orderfulfillmentstatus',
+            values: ['NOT_STARTED|IN_PROGRESS', 'FULFILLED|IN_PROGRESS']
+          }]
+        }]
+      },
+      getTransactions: {
+        docURL: 'https://developer.ebay.com/api-docs/sell/finances/resources/transaction/methods/getTransactions',
+        config: [{
+          type: 'string',
+          name: 'limit',
+          default: 20
+        }, {
+          type: 'string',
+          name: 'offset',
+          default: 0
+        }, {
+          type: 'filter',
+          name: 'filter',
+          fields: [{
+            type: 'datetime-range',
+            name: 'transactionDate'
+          }, {
+            type: 'enum',
+            name: 'transactionType',
+            values: ['SALE', 'REFUND', 'CREDIT', 'DISPUTE', 'NON_SALE_CHARGE', 'SHIPPING_LABEL', 'TRANSFER']
+          }, {
+            type: 'enum',
+            name: 'transactionStatus',
+            values: ['PAYOUT', 'FUNDS_PROCESSING', 'FUNDS_AVAILABLE_FOR_PAYOUT', 'FUNDS_ON_HOLD', 'COMPLETED', 'FAILED']
+          }, {
+            type: 'string',
+            name: 'orderId',
+          }, {
+            type: 'string',
+            name: 'transactionId'
+          }, {
+            type: 'string',
+            name: 'payoutId'
+          }, {
+            type: 'string',
+            name: 'salesRecordReference'
+          }, {
+            type: 'string',
+            name: 'buyerUsername'
+          }]
+        }]
+      }
+    },
+    taxonomy: {
+      getCategorySuggestions: {
+        docURL: '',
+        config: 'query'
+      }
+    },
+    postOrder: {
+      getReturn: {
+        docURL: 'https://developer.ebay.com/Devzone/post-order/post-order_v2_return-returnid__get.html',
+        config: 'returnId'
+      },
+      getReturns: {
+        docURL: 'https://developer.ebay.com/Devzone/post-order/post-order_v2_return_search__get.html',
+        config: [{
+          type: 'string',
+          name: 'limit',
+          default: 20
+        }, {
+          type: 'string',
+          name: 'offset',
+          default: 0
+        }, {
+          type: 'string',
+          name: 'creation_date_range_from',
+        }, {
+          type: 'string',
+          name: 'creation_date_range_to',
+        }, {
+          type: 'string',
+          name: 'item_id',
+        }, {
+          type: 'string',
+          name: 'order_id',
+        }, {
+          type: 'string',
+          name: 'return_id',
+        }, {
+          type: 'string',
+          name: 'transaction_id',
+        }]
+      }
+    }
+  })
+
+  RED.nodes.registerType('ebay-api', {
+    category: 'Ebay API',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "ebay.png",
+    paletteLabel: "Ebay API",
+    defaults: {
+      name: {
+        value: ''
+      },
+      config: {
+        value: '',
+        type: 'ebay-config',
+        required: true
+      },
+      apiName: {
+        value: 'sell'
+      },
+      methodName: {
+        value: 'getOrder'
+      },
+      requestPayload: {
+        value: ''
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || "Ebay API";
+    },
+    oneditprepare() {
+      const setRequestPayload = (newPayload) => {
+
+        if (typeof newPayload === 'object') {
+          $('#node-input-requestPayload').val(JSON.stringify(newPayload));
+        } else {
+          $('#node-input-requestPayload').val(newPayload);
+        }
+      }
+      const getRequestPayload = () => {
+        const value = $('#node-input-requestPayload').val();
+        try {
+          return JSON.parse(value);
+        } catch (err) {
+          console.log('not a json', value, err);
+          return value;
+        }
+      }
+
+      const node = this;
+
+      let isFirstRender = true;
+
+      $('#node-input-apiName')
+        .change(e => {
+          const apiName = e.target.value;
+          if (!apiName) return;
+          // do not clear data on first render.
+          !isFirstRender && setRequestPayload('');
+
+          buildPayloadForm(apiName,
+            isFirstRender
+              ? node.methodName
+              : Object.keys(ebayApiConfig[apiName])[0],
+            getRequestPayload())
+          $('#node-input-methodName')
+            .html(Object.keys(ebayApiConfig[apiName]).map(method =>
+              `<option value="${method}" ${node.methodName === method ? 'selected' : ''} >${method}</option>`
+            ))
+          isFirstRender && (isFirstRender = false)
+        })
+
+      const buildPayloadForm = (apiName, methodName, initData) => {
+        const container = $('#request-payload');
+        const {config, docURL} = ebayApiConfig[apiName][methodName];
+
+        // reset container
+        container
+          .html(`
+      <h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" target="_blank" href="${docURL}">here</a></h4>
+      <h4><b>IMPORTANT:</b> If method meant to return an array of items, and nothing has been found by filter, Ebay will return an empty string as response, so as this node in payload.</h4>
+      <div><b>All dates must be in ISO 8601 e.g. YYYY-MM-DDThh:mm:ss.mmmZ</b></div>
+`);
+        if (typeof config === 'string') {
+          container
+            .append(
+              $('<div class="form-row">')
+                .append($(`<label>${config}</label>`))
+                .append($(`<input type="text"
+                                  data-path=""
+                                  class="ebay-options-typed-input"
+                                  value="${initData || ''}"
+                                  style="margin-left: 5px"
+                                  placeholder="${config}">`))
+            );
+        } else {
+          const requestPayload = getRequestPayload() || {};
+          container
+            .append(
+              config
+                .map(({name, type, default: defaultValue, fields}) => {
+                  if (type === 'string') {
+                    return $('<div style="margin-top: 10px">')
+                      .append($(`<label>${name} ${defaultValue === undefined ? '' : `(
+                      default: ${defaultValue}
+
+                      )`}</label>`))
+                      .append($(`<input type="text"
+                                        data-path="${name}"
+                                        class="ebay-options-typed-input">`));
+                  } else if (type === 'filter') {
+                    const {filter = {}} = requestPayload;
+                    const div = $('<div class="form-row">');
+                    div.append('<h3>Filter</h3>')
+                    for (const {name, type, values} of fields) {
+                      if (type === 'datetime-range') {
+                        const {from = '', to = ''} = filter[name] || {};
+                        div
+                          .append([
+                            $(`<h5>${name}</h5>`),
+                            $(`<input value="${from}"
+                                      data-path="filter.${name}.from"
+                                      class="ebay-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.from">
+                               `),
+                            $(`<input value="${to}"
+                                      data-path="filter.${name}.to"
+                                      class="ebay-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.to">`)
+                          ])
+                      } else if (type === 'enum') {
+                        const currentRequestPayload = getRequestPayload() || {}
+                        const currentFilter = currentRequestPayload.filter || {};
+                        const [_, currValue = ''] = (currentFilter[name] || '').split('|');
+                        div
+                          .append([
+                            $(`<h5>${name}</h5>`),
+                            $(`<select style="margin-left: 15px">
+                            <option ${currValue === '' ? 'selected' : ''} value="">-</option>
+                               ${values.map(value => `<option ${currValue === value ? 'selected' : ''} value="${value}">${value}</option>`)}
+                            </select>`)
+                              .change(e =>
+                                setRequestPayload(window._.set(getRequestPayload() || {}, `filter.${name}`, `const|${e.target.value}`))
+                              )
+                          ])
+                      } else if (type === 'string') {
+                        div
+                          .append($(`
+                            <h5>${name}</h5>
+                            <input type="text"
+                                   data-path="filter.${name}"
+                                   class="ebay-options-typed-input">`))
+                      }
+                    }
+                    return div;
+                  }
+                })
+            )
+        }
+        // replace inputs with typed inputs
+        $('.ebay-options-typed-input')
+          .each((idx, node) => {
+            const types = [{
+              value: "msg",
+              label: "msg."
+            }, {
+              value: "const",
+              label: "constant"
+            }]
+            const data = getRequestPayload();
+            const dataPath = node.dataset.path;
+            const typedValue = dataPath === '' ? data : window._.get(data || {}, dataPath, '');
+            const [type, value = ''] = typedValue.split('|');
+
+            $(node)
+              .typedInput({types: types})
+              .typedInput('value', value)
+              .typedInput('type', type)
+              .on('change', (e, type) => {
+                if (type === true) return;
+                if (dataPath === "") {
+                  setRequestPayload(`${type}|${e.target.value}`)
+                } else {
+                  const newData = window._.set(getRequestPayload() || {}, dataPath, `${type}|${e.target.value}`);
+                  setRequestPayload(newData);
+                }
+              })
+          })
+      };
+
+      $('#node-input-methodName')
+        .change(e => {
+          if (e.target.value !== node.methodName) {
+            setRequestPayload('');
+          }
+          buildPayloadForm(node.apiName, e.target.value, getRequestPayload())
+        })
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="ebay-api">
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+        <input type="hidden" id="node-input-requestPayload">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config">Credentials</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-apiName">API Name</label>
+        <select id="node-input-apiName">
+            <option value="sell">Sell</option>
+          <option value="taxonomy">Taxonomy</option>
+          <option value="postOrder">Post order (returns)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-methodName">Method name</label>
+        <select id="node-input-methodName"></select>
+    </div>
+    <div id="request-payload">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="ebay-api">
+
+</script>
