@@ -17,10 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: shallwefootball/s3-upload-action@master
-        name: Upload S3
+
+      - uses: swimlane/s3-upload-file-action@master
         with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_access_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_BUCKET }}
-          source_dir: 'node-red-contrib-rollun-utils/frontend-utils'
+          file_path: 'node-red-contrib-rollun-utils/frontend-utils/frontend-utils.js'
+          file_mime_type: 'application/js'
+          dest_dir: '/'
