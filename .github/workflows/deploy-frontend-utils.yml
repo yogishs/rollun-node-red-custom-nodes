@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'node-red-contrib-rollun-utils/frontend-utils/**'
+      - '.github/workflows/deploy-frontend-utils.yml'
     branches:
       - master
 
