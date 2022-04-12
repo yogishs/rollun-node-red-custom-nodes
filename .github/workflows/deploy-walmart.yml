@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'node-red-contrib-rollun-walmart/**'
+      - '.github/workflows/deploy-walmart.yml'
     branches:
       - master
 
