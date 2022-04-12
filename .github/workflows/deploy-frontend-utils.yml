@@ -25,3 +25,4 @@ jobs:
           aws_bucket: ${{ secrets.AWS_BUCKET }}
           file_path: 'node-red-contrib-rollun-utils/frontend-utils/frontend-utils.js'
           file_mime_type: 'application/js'
+          dest_dir: '.'
