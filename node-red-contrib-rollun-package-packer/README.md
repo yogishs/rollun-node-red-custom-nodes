@@ -5,7 +5,7 @@ Node-RED nodes for finding distance between two places
 
 ## Nodes
 List of nodes:
-Pack package(package-packer)
+- Pack package(package-packer)
 
 ## Install
 

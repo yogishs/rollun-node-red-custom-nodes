@@ -5,7 +5,7 @@ Node-RED nodes for interacting with walmart api
 
 ## Nodes
 List of nodes:
-Walmart(walmart-api)
+- Walmart(walmart-api)
 
 ## Install
 

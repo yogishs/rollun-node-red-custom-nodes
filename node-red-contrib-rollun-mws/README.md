@@ -5,7 +5,7 @@ Node-RED node for interacting with amazon mws
 
 ## Nodes
 List of nodes:
-Mws(MWS)
+- Mws(MWS)
 
 ## Install
 

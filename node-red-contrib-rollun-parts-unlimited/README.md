@@ -5,7 +5,7 @@ Node-RED nodes for interacting with parts unlimited api
 
 ## Nodes
 List of nodes:
-Parts Unlimited api(parts-unlimited-orders)
+- Parts Unlimited api(parts-unlimited-orders)
 
 ## Install
 

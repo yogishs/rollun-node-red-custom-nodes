@@ -5,7 +5,7 @@ Node-RED nodes for CRUD operation upon rollun datastores
 
 ## Nodes
 List of nodes:
-Rollun table(rollun-tables-crud, rollun-tables-get-item, rollun-tables-get-items)
+- Rollun table(rollun-tables-crud, rollun-tables-get-item, rollun-tables-get-items)
 
 ## Install
 

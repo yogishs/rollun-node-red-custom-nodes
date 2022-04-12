@@ -1,6 +1,6 @@
 const { getGSheet } = require('./sdk');
 const { parseGSheetUrl, columnToLetter } = require('./utils');
-const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
+const { getTypedFieldValue } = require('node-red-contrib-rollun-backend-utils')
 
 async function updateRow(sheet, rowIndex, rowData) {
   const headers = sheet.headerValues;

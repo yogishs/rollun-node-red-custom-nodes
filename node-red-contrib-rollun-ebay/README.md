@@ -5,7 +5,7 @@ Node-RED node for interacting with ebay api
 
 ## Nodes
 List of nodes:
-Ebay api(ebay-api)
+- Ebay api(ebay-api)
 
 ## Install
 

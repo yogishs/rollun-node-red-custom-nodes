@@ -5,9 +5,9 @@ Node-RED nodes for using openapi manifests, requests and validation
 
 ## Nodes
 List of nodes:
-Openapi client part(rollun-openapi-client)
-Openapi server part(rollun-openapi-in, rollun-openapi-out)
-Openapi common(rollun-openapi-messages, rollun-openapi-manifest))
+- Openapi client part(rollun-openapi-client)
+- Openapi server part(rollun-openapi-in, rollun-openapi-out)
+- Openapi common parts(rollun-openapi-messages, rollun-openapi-manifest))
 
 ## Install
 

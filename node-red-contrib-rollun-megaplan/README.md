@@ -5,7 +5,7 @@ Node-RED node for interacting with megaplan api
 
 ## Nodes
 List of nodes:
-Megaplan entity(megaplan-get-entity, megaplan-update-entity)
+- Megaplan entity(megaplan-get-entity, megaplan-update-entity)
 
 ## Install
 

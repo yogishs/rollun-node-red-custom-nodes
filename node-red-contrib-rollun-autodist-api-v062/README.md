@@ -8,7 +8,7 @@ Node-RED node for autodist-api-v062
 ## Nodes
 
 List of nodes:
-autodist-api-v062
+- Autodist api(autodist-api-v062)
 
 ## Install
 

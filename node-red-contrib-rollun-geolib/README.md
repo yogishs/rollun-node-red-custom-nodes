@@ -5,7 +5,7 @@ Node-RED node for getting distance between two places
 
 ## Nodes
 List of nodes:
-Get distance(get-distance)
+- Get distance(get-distance)
 
 ## Install
 

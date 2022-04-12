@@ -35,7 +35,6 @@ jobs:
       - name: Install dependecies
         run: npm install
 
-      - run: npm --no-git-tag-version version $(node -e "console.log(require('./package.json').version);")
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

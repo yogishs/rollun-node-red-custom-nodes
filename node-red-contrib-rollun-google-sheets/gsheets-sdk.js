@@ -7,7 +7,7 @@ const {
   resolvePayload,
   validateObjectSchema,
   getTypedFieldValue
-} = require('../node-red-contrib-common-utils/1-global-utils');
+} = require('node-red-contrib-rollun-backend-utils');
 const _ = require('lodash');
 
 const actionsPayloadSchema = {

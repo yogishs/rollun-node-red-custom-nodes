@@ -1,6 +1,6 @@
 const { parseGSheetUrl, formatGSheetToArray } = require('./utils');
 const { getGSheet } = require('./sdk');
-const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
+const { getTypedFieldValue } = require('node-red-contrib-rollun-backend-utils')
 
 module.exports = function (RED) {
   function GSheetGetCells(sheetResponseFormatter = data => data) {
