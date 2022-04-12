@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-walmart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "dependencies": {
     "rollun-ts-utils": "^0.0.2",
