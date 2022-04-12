@@ -38,8 +38,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - run: git fetch origin
-      - run: npm --no-git-tag-version version $(node -e "console.log(require('./package.json').version);")
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
