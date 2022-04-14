@@ -1,0 +1,41 @@
+name: Deploy query-from-table nodes to npm
+
+on:
+  push:
+    paths:
+      - 'node-red-contrib-rollun-google-sheets/**'
+      - '.github/workflows/deploy-google-sheets.yml'
+    branches:
+      - master
+
+defaults:
+  run:
+    working-directory: node-red-contrib-rollun-google-sheets
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache node_modules
+        uses: actions/cache@master
+        id:
+          cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package.json') }}
+
+      - name: Install dependecies
+        run: npm install
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
