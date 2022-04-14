@@ -1,4 +1,4 @@
-const { ElasticLogger, getTypedFieldValue, parseTypedInput } = require('./1-global-utils');
+const { ElasticLogger, getTypedFieldValue, parseTypedInput } = require('node-red-contrib-rollun-backend-utils');
 
 const log_levels = {
   debug: { value: 0, name: 'debug', description: '' },

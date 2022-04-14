@@ -1,4 +1,4 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {getTypedFieldValue} = require('node-red-contrib-rollun-backend-utils')
 
 module.exports = function (RED) {
   const _ = require('lodash');

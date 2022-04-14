@@ -1,5 +1,5 @@
 const {ArrayMapState} = require("./array-map-state");
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
+const {getTypedFieldValue} = require('node-red-contrib-rollun-backend-utils');
 const _ = require('lodash');
 
 module.exports = function (RED) {
