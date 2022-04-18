@@ -1,4 +1,4 @@
-name: Deploy walmart node to npm
+name: Deploy google sheets node to npm
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    working-directory: ode-red-contrib-rollun-google-sheets
+    working-directory: node-red-contrib-rollun-google-sheets
 
 jobs:
   deploy:
