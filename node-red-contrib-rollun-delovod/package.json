@@ -1,10 +1,13 @@
 {
   "name": "node-red-contrib-rollun-delovod",
   "description": "Node Red node to query Rollun tables by some filed",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
     "node-red-contrib-rollun-backend-utils": "^1.0.0"
   },
+  "keywords": [
+    "node-red"
+  ],
   "node-red": {
     "nodes": {
       "delovod-config": "delovod-config.js",
