@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-common",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,7 +22,8 @@
       "elastic-logger-config": "elastic-logger-config.js",
       "foreach-start": "foreach.js",
       "foreach-end": "foreach.js",
-      "foreach-break": "foreach.js"
+      "foreach-break": "foreach.js",
+      "common": "common"
     }
   },
   "keywords": [
