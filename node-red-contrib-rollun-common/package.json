@@ -23,7 +23,7 @@
       "foreach-start": "foreach.js",
       "foreach-end": "foreach.js",
       "foreach-break": "foreach.js",
-      "common": "common"
+      "common": "1-common.js"
     }
   },
   "keywords": [
