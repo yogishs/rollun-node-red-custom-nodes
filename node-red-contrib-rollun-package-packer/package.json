@@ -11,6 +11,7 @@
   ],
   "node-red": {
     "nodes": {
+      "common": "1-common.js",
       "package-packer": "package-packer.js"
     }
   },

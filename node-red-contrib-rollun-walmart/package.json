@@ -12,6 +12,7 @@
   ],
   "node-red": {
     "nodes": {
+      "common": "1-common.js",
       "walmart-api": "walmart-api.js",
       "walmart-config": "walmart-api-config.js"
     }
