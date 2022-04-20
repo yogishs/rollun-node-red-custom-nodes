@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-package-packer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "dependencies": {
     "node-red-contrib-rollun-backend-utils": "^1.0.0",
