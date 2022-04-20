@@ -38,3 +38,7 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - uses: rollun-com/actions/refresh-node-red-module@master
+        with:
+          name: node-red-contrib-rollun-parts-unlimited
