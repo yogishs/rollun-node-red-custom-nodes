@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-openapi",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "dependencies": {
     "openapi-request-validator": "^10.0.0",
