@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-megaplan",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "keywords": [
     "node-red"
@@ -11,7 +11,7 @@
   },
   "node-red": {
     "nodes": {
-      "megaplan-utils": "1-megaplan-utils",
+      "1-megaplan-utils": "1-megaplan-utils.js",
       "megaplan-config": "megaplan-config.js",
       "megaplan-get-entity": "megaplan-get-entity.js",
       "megaplan-update-entity": "megaplan-update-entity.js"

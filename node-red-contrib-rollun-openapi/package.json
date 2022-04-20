@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-openapi",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "dependencies": {
     "openapi-request-validator": "^10.0.0",
@@ -18,12 +18,12 @@
   ],
   "node-red": {
     "nodes": {
-      "common": "1-common.js",
-      "rollun-openapi-client": "./client/openapi-client.js",
-      "rollun-openapi-messages": "./common/messages.js",
-      "rollun-openapi-manifest": "./common/openapi-manifests.js",
-      "rollun-openapi-in": "./server/openapi-in.js",
-      "rollun-openapi-out": "./server/openapi-out.js"
+      "1-common": "1-common.js",
+      "rollun-openapi-client": "openapi-client.js",
+      "rollun-openapi-messages": "messages.js",
+      "rollun-openapi-manifest": "openapi-manifests.js",
+      "rollun-openapi-in": "openapi-in.js",
+      "rollun-openapi-out": "openapi-out.js"
     }
   },
   "author": "",
