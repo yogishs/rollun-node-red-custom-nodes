@@ -4,3 +4,18 @@
 <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-standalone-preset.js"></script>
 <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
 <script src="https://node-red-rollun.s3.eu-central-1.amazonaws.com/frontend-utils.js"></script>
+
+<script>
+  window.logger = {
+    log_levels: {
+      debug: {value: 0, name: 'debug', description: ''},
+      notice: {value: 1, name: 'notice', description: ''},
+      info: {value: 2, name: 'info', description: ''},
+      warning: {value: 3, name: 'warning', description: ''},
+      error: {value: 4, name: 'error', description: ''},
+      alert: {value: 5, name: 'alert', description: ''},
+      critical: {value: 6, name: 'critical', description: ''},
+      emergency: {value: 7, name: 'emergency', description: ''},
+    }
+  }
+</script>
