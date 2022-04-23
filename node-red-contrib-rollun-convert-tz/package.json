@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-rollun-convert-tz",
   "description": "Node Red node to covert TZ",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "dependencies": {
     "moment-parseformat": "^4.0.0",
     "moment-timezone": "^0.5.34",
