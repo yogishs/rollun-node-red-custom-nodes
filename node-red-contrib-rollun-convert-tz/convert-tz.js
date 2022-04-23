@@ -382,8 +382,8 @@ module.exports = function (RED) {
 
   } // ---- end of nodeGo function ---- //
 
-//   /** Register the node by name. This must be called before overriding any of the Node functions. */
-//   RED.nodes.registerType(moduleName, nodeDefinition)
+  /** Register the node by name. This must be called before overriding any of the Node functions. */
+  RED.nodes.registerType(moduleName, nodeDefinition)
 
 //   // Create API listener: sends the host locale & timezone to the admin ui
 //   // NB: uses Express middleware on the admin server
