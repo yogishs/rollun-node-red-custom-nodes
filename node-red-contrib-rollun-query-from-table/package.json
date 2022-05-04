@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-query-from-table",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "dependencies": {
     "node-red-contrib-rollun-backend-utils": "^1.0.0"
@@ -10,7 +10,7 @@
   ],
   "node-red": {
     "nodes": {
-      "utils": "1-query-from-table-utils.js",
+      "1-utils": "1-query-from-table-utils.js",
       "rollun-tables-crud": "rollun-tables-crud.js",
       "rollun-tables-get-item": "rollun-tables-get-item.js",
       "rollun-tables-get-items": "rollun-tables-get-items.js"

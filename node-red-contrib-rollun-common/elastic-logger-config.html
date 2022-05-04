@@ -1,16 +1,4 @@
 <script type="text/javascript">
-  window.logger = {
-    log_levels: {
-      debug: {value: 0, name: 'debug', description: ''},
-      notice: {value: 1, name: 'notice', description: ''},
-      info: {value: 2, name: 'info', description: ''},
-      warning: {value: 3, name: 'warning', description: ''},
-      error: {value: 4, name: 'error', description: ''},
-      alert: {value: 5, name: 'alert', description: ''},
-      critical: {value: 6, name: 'critical', description: ''},
-      emergency: {value: 7, name: 'emergency', description: ''},
-    }
-  }
   RED.nodes.registerType('elastic-logger-config', {
     category: 'config',
     defaults: {

@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-google-sheets",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "dependencies": {
     "node-red-contrib-rollun-backend-utils": "^1.0.0",
@@ -13,7 +13,7 @@
   ],
   "node-red": {
     "nodes": {
-      "common": "1-common.js",
+      "1-common": "1-common.js",
       "gsheets-config": "gsheets-config.js",
       "gsheets-get-cells-raw": "gsheets-get-cells.js",
       "gsheets-get-cells-formatted": "gsheets-get-cells.js",

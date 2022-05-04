@@ -4,26 +4,28 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node $NODE_OPTIONS node_modules/node-red/red.js $FLOWS",
-    "start:dev": "sh start_node_red.sh"
+    "start:dev": "nodemon node_modules/node-red/red.js $FLOWS -u red-data  -p 80"
   },
   "dependencies": {
     "node-red": "^1.3.7",
-    "node-red-contrib-rollun-autodist-api-v062": "^0.6.3",
-    "node-red-contrib-rollun-common": "^1.0.6",
-    "node-red-contrib-rollun-delovod": "^1.0.1",
-    "node-red-contrib-rollun-ebay": "^1.18.0",
-    "node-red-contrib-rollun-geolib": "^1.0.1",
-    "node-red-contrib-rollun-megaplan": "^1.0.1",
-    "node-red-contrib-rollun-mws": "^1.0.1",
-    "node-red-contrib-rollun-openapi": "^1.0.1",
-    "node-red-contrib-rollun-package-packer": "^1.0.2",
-    "node-red-contrib-rollun-parts-unlimited": "^1.0.1",
-    "node-red-contrib-rollun-query-from-table": "^1.0.1",
-    "node-red-contrib-rollun-backend-utils": "^1.0.1",
-    "node-red-contrib-rollun-walmart": "^1.0.1"
+    "node-red-contrib-rollun-autodist-api-v062": "file:./node-red-contrib-rollun-autodist-api-v062",
+    "node-red-contrib-rollun-common": "file:./node-red-contrib-rollun-common",
+    "node-red-contrib-rollun-delovod": "file:./node-red-contrib-rollun-delovod",
+    "node-red-contrib-rollun-ebay": "file:./node-red-contrib-rollun-ebay",
+    "node-red-contrib-rollun-geolib": "file:./node-red-contrib-rollun-geolib",
+    "node-red-contrib-rollun-megaplan": "file:./node-red-contrib-rollun-megaplan",
+    "node-red-contrib-rollun-mws": "file:./node-red-contrib-rollun-mws",
+    "node-red-contrib-rollun-openapi": "file:./node-red-contrib-rollun-openapi",
+    "node-red-contrib-rollun-package-packer": "file:./node-red-contrib-rollun-package-packer",
+    "node-red-contrib-rollun-parts-unlimited": "file:./node-red-contrib-rollun-parts-unlimited",
+    "node-red-contrib-rollun-query-from-table": "file:./node-red-contrib-rollun-query-from-table",
+    "node-red-contrib-rollun-backend-utils": "file:./node-red-contrib-rollun-utils/backend-utils",
+    "node-red-contrib-rollun-walmart": "file:./node-red-contrib-rollun-walmart"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
 }

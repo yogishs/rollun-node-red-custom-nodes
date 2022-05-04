@@ -14,7 +14,7 @@
   ],
   "node-red": {
     "nodes": {
-      "common": "1-common.js",
+      "1-common": "1-common.js",
       "ebay-api": "ebay-api.js",
       "ebay-config": "ebay-config.js"
     }
