@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-rollun-ebay",
-  "version": "1.18.2",
+  "version": "1.18.3",
   "description": "Use_the_Fulfillment_API_to_complete_the_process_of_packaging_addressing_handling_and_shipping_each_order_on_behalf_of_the_seller_in_accordance_with_the_payment_method_and_timing_specified_at_checkout_",
   "license": "eBay API License Agreement",
   "scripts": {

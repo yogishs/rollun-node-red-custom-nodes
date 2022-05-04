@@ -13,7 +13,7 @@ class Taxonomy {
 
   getCategorySuggestions(query) {
     return this.api.get(this.API_HOSTS.API +
-      '/commerce/taxonomy/v1_beta/category_tree/0/get_category_suggestions?' +
+      '/commerce/taxonomy/v1/category_tree/0/get_category_suggestions?' +
       `q=${encodeURI(query)}`
     )
   }
