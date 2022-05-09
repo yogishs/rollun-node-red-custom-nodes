@@ -23,6 +23,8 @@ class MegaplanAPIV3Client {
       if (config.url === 'api/v3/auth/access_token') return config;
       const token = await this._getAuthToken();
       config.headers.Authorization = `Bearer ${token}`;
+      // set megaplan specific header
+      config.headers['x-megaplan-app-type'] = `Web`;
       return config;
     })
 
