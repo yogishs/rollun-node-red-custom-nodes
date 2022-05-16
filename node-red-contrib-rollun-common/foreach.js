@@ -72,7 +72,7 @@ module.exports = function (RED) {
         return node.send(msg);
       }
 
-      iterable = Object.entries(iterable);
+      iterable = type === 'array' ? arrayToPairs(iterable) : Object.entries(iterable);
       state.initResult(msg, metaInfoKey);
 
       if (iterable.length === 0) {
@@ -192,3 +192,31 @@ module.exports = function (RED) {
 
   RED.nodes.registerType("foreach-break", ForEachBreak);
 };
+
+/**
+ * Safe function, that ignores additional properties on array objects.
+ * Examples:
+ *  const arr = [1, 2, 3];
+ *  arr.test = '42';
+ *  Object.entries(arr)
+ *  // [
+ *   [ '0', 1 ],
+ *   [ '1', 2 ],
+ *   [ '2', 3 ],
+ *   [ '3', 4 ],
+ *   [ 'test', 'hidden' ]
+ *    ]
+ *  additional prop treated as key, and added as key.
+ *
+ * This function avoids this
+ *
+ * arrayToPairs(arr)
+ * // [ [ '0', 1 ], [ '1', 2 ], [ '2', 3 ], [ '3', 4 ] ]
+ *
+ * @param array
+ * @return {*}
+ */
+
+function arrayToPairs(array) {
+  return array.map((value, idx) => [`${idx}`, value]);
+}
