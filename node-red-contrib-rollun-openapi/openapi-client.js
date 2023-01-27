@@ -9,10 +9,7 @@ const {
 module.exports = function (RED) {
   function openApiRed(config) {
     RED.nodes.createNode(this, config)
-    const node = this
-
-    const configNode = RED.nodes.getNode(config.schema)
-    const schema = configNode ? configNode.schema : null;
+    const node = this;
 
     function sendError(msg, text) {
       msg.payload = {
@@ -22,6 +19,9 @@ module.exports = function (RED) {
     }
 
     node.on('input', async function (msg) {
+      const configNode = RED.nodes.getNode(config.schema)
+      const schema = configNode ? configNode.schema : null;  
+
       if (!schema) {
         return sendError(msg, 'No openapi schema selected.');
       }
