@@ -1,8 +1,6 @@
 'use strict';
 const helpers = require('./helpers');
-const queue = require('./queue');
 const route = require('./route');
-const { defaultLogger } = require('node-red-contrib-rollun-backend-utils');
 
 module.exports = function register(RED) {
   RED.nodes.registerType('rollun-openapi-in', function openapiNode(props) {
@@ -36,5 +34,8 @@ module.exports = function register(RED) {
       node: _this,
       RED,
     });
+    this.routeInstalled = true;
+    console.log('route installed', this.id);
+    RED.events.emit(`${this.schema}:route-installed`, this);
   });
 };

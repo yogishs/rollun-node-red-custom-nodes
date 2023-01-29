@@ -57,10 +57,12 @@ module.exports = function register(RED) {
           res.set('lifecycle_token', lToken);
           res.set('parent_lifecycle_token', plToken || '');
 
-          res.status(code).send({
-            data,
-            messages: msgs,
-          });
+          console.log('res', data, msgs);
+          res
+            .status(code)
+            .send(
+              data && msgs.length > 0 ? { data, messages: msgs } : undefined
+            );
           res.on('finish', () => {
             if (!res.errorLogged) {
               defaultLogger.withMsg(msg)(

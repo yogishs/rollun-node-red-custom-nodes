@@ -7,7 +7,6 @@
     "start": "node node_modules/node-red/red.js $FLOWS -u red-data  -p 8080"
   },
   "dependencies": {
-    "express-openapi-validate": "^0.6.1",
     "node-red": "3.0.2",
     "node-red-contrib-rollun-autodist-api-v062": "file:./node-red-contrib-rollun-autodist-api-v062",
     "node-red-contrib-rollun-backend-utils": "file:./node-red-contrib-rollun-utils/backend-utils",

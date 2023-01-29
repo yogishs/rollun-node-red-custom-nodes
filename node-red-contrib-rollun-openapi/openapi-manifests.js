@@ -1,6 +1,6 @@
 const express = require('express');
-const ExpressOpenapiValidator = require('express-openapi-validator');
 const objectHash = require('object-hash');
+const OpenApiValidator = require('express-openapi-validator');
 const OpenApiSchemaValidator = require('openapi-schema-validator').default;
 const helpers = require('./helpers');
 const axios = require('axios');
@@ -9,7 +9,37 @@ const {
   defaultLogger,
   getLifecycleToken,
 } = require('node-red-contrib-rollun-backend-utils');
-const route = require('./route');
+const { wait } = require('better-wait');
+
+// install error handler lazily, after all rotes have been installed,
+// to ensure correct order of handlers
+async function installHandlerAfterRouters(nodeId, RED, router, handler) {
+  let installedInNodesIds = [];
+  RED.events.on(`${nodeId}:route-installed`, (node) => {
+    installedInNodesIds.push(node.id);
+  });
+
+  let inNodesIds = [];
+  RED.nodes.eachNode((node) => {
+    if (node.type === 'rollun-openapi-in') {
+      inNodesIds.push(node.id);
+    }
+  });
+
+  let allInstalled = false;
+
+  while (!allInstalled) {
+    allInstalled =
+      inNodesIds.length === installedInNodesIds.length &&
+      inNodesIds.every((id) => installedInNodesIds.includes(id));
+
+    if (!allInstalled) {
+      await wait('10ms');
+    }
+  }
+
+  router.use(handler);
+}
 
 module.exports = function register(RED) {
   const schemaValidator = new OpenApiSchemaValidator({
@@ -50,49 +80,56 @@ module.exports = function register(RED) {
       this.baseURL = props.baseURL;
       this.schema = props.schema;
       this.router = router;
+
+      router.use(
+        OpenApiValidator.middleware({
+          apiSpec: schema,
+          validateRequests: true,
+          validateResponses: true,
+        })
+      );
+
       if (this.baseURL && this.baseURL !== '/') {
         mainRouter.use(this.baseURL, router);
       } else {
         mainRouter.use(router);
       }
 
-      // router.use(
-      //   ExpressOpenapiValidator.middleware({
-      //     apiSpec: schema,
-      //     validateRequests: true,
-      //     validateResponses: true,
-      //   })
-      // );
+      installHandlerAfterRouters(
+        this.id,
+        RED,
+        router,
+        function (err, req, res, next) {
+          // it's an error from the middleware
+          if (err.status === 404 && req.openapi != null) {
+            return next();
+          }
+          console.log('openapi fallback err handler', err);
+          const errors = err.errors || [{ path: 'root', message: err.message }];
+          const formatted = errors.map(({ path, message }) => ({
+            level: 'error',
+            // type: path.includes('response')
+            //   ? 'OPENAPI_RESPONSE_VALIDATION_ERROR'
+            //   : path.includes('request')
+            //     ? 'OPENAPI_REQUEST_VALIDATION_ERROR'
+            //     : 'OPENAPI_VALIDATION_ERROR',
+            type: 'UNDEFINED',
+            text: `[${path}] ${message}`,
+          }));
+          const { lToken, plToken = '' } = getLifecycleToken({ req });
 
-      router.use(function (err, req, res, next) {
-        // it's an error from the middleware
-        if (err.status === 404 && req.openapi != null) {
-          return next();
+          res.set('lifecycle_token', lToken);
+          res.set('parent_lifecycle_token', plToken);
+          res.status(500).json({ data: null, messages: formatted });
+          res.errorLogged = true;
+          defaultLogger.withMsg({ req })(
+            'error',
+            `OpenAPIServerRes: ${req.method} ${req.path}`,
+            { status: 500, messages: formatted, err: err.stack }
+          );
         }
-        console.log('openapi fallback err handler', err);
-        const errors = err.errors || [{ path: 'root', message: err.message }];
-        const formatted = errors.map(({ path, message }) => ({
-          level: 'error',
-          // type: path.includes('response')
-          //   ? 'OPENAPI_RESPONSE_VALIDATION_ERROR'
-          //   : path.includes('request')
-          //     ? 'OPENAPI_REQUEST_VALIDATION_ERROR'
-          //     : 'OPENAPI_VALIDATION_ERROR',
-          type: 'UNDEFINED',
-          text: `[${path}] ${message}`,
-        }));
-        const { lToken, plToken = '' } = getLifecycleToken({ req });
+      );
 
-        res.set('lifecycle_token', lToken);
-        res.set('parent_lifecycle_token', plToken);
-        res.status(500).json({ data: null, messages: formatted });
-        res.errorLogged = true;
-        defaultLogger.withMsg({ req })(
-          'error',
-          `OpenAPIServerRes: ${req.method} ${req.path}`,
-          { status: 500, messages: formatted, err: err.stack }
-        );
-      });
       this.on('close', function () {
         router.stack.length = 0;
         mainRouter.stack.forEach(function (route, i, routes) {
