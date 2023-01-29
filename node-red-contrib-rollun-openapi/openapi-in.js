@@ -35,7 +35,6 @@ module.exports = function register(RED) {
       RED,
     });
     this.routeInstalled = true;
-    console.log('route installed', this.id);
     RED.events.emit(`${this.schema}:route-installed`, this);
   });
 };

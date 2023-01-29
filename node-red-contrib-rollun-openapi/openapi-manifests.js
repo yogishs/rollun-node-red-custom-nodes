@@ -15,9 +15,8 @@ const { wait } = require('better-wait');
 // to ensure correct order of handlers
 async function installHandlerAfterRouters(nodeId, RED, router, handler) {
   let installedInNodesIds = [];
-  RED.events.on(`${nodeId}:route-installed`, (node) => {
-    installedInNodesIds.push(node.id);
-  });
+  const eventHandler = (node) => installedInNodesIds.push(node.id);
+  RED.events.on(`${nodeId}:route-installed`, eventHandler);
 
   let inNodesIds = [];
   RED.nodes.eachNode((node) => {
@@ -37,6 +36,8 @@ async function installHandlerAfterRouters(nodeId, RED, router, handler) {
       await wait('10ms');
     }
   }
+
+  RED.events.off(`${nodeId}:route-installed`, eventHandler);
 
   router.use(handler);
 }
