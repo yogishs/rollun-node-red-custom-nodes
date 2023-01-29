@@ -2,7 +2,6 @@
 const _ = require('lodash');
 const queue = require('./queue');
 const { defaultLogger } = require('node-red-contrib-rollun-backend-utils');
-const { OpenApiValidator } = require('express-openapi-validate');
 
 function toExpressParams(part) {
   return part.replace(/\{([^}]+)}/g, ':$1');
