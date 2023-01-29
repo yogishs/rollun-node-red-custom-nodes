@@ -20,6 +20,14 @@
       );
     }
 
+    function getBasePathFromOpenApiServers(schema) {
+      const [server] = schema.servers;
+
+      const url = new URL(server.url);
+
+      return url.pathname;
+    }
+
     RED.nodes.registerType('rollun-openapi-manifest', {
       category: 'config',
       defaults: {
@@ -162,6 +170,9 @@
           node.schema = next;
           $('#node-config-input-name')
             .val(`${next.info?.title || 'OpenAPI manifest'} v${next.info?.version || next.openapi}`);
+
+          $('#node-config-input-baseURL')
+            .val(getBasePathFromOpenApiServers(next));
         }
 
         addButton.click(() => {
@@ -245,10 +256,10 @@
         <label for="schema"><i class="fa fa-code"></i> Current: </label>
         <div id="schema" style="display: inline-block;"></div>
     </div>
-<!--    <div class="form-row">-->
-<!--        <label for="node-config-input-baseURL"><i class="fa fa-link"></i> Base URL: </label>-->
-<!--        <input type="text" id="node-config-input-baseURL" />-->
-<!--    </div>-->
+   <div class="form-row">
+        <label for="node-config-input-baseURL"><i class="fa fa-link"></i> Base URL: </label>
+        <input type="text" id="node-config-input-baseURL" />
+    </div>
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name: </label>
         <input type="text" id="node-config-input-name" />

@@ -3,24 +3,24 @@ const axios = require('axios');
 const {
   getLifecycleToken,
   defaultLogger,
-  getTypedFieldValue
+  getTypedFieldValue,
 } = require('node-red-contrib-rollun-backend-utils');
 
 module.exports = function (RED) {
   function openApiRed(config) {
-    RED.nodes.createNode(this, config)
+    RED.nodes.createNode(this, config);
     const node = this;
 
     function sendError(msg, text) {
       msg.payload = {
         error: text,
-      }
+      };
       return node.send([msg]);
     }
 
     node.on('input', async function (msg) {
-      const configNode = RED.nodes.getNode(config.schema)
-      const schema = configNode ? configNode.schema : null;  
+      const configNode = RED.nodes.getNode(config.schema);
+      const schema = configNode ? configNode.schema : null;
 
       if (!schema) {
         return sendError(msg, 'No openapi schema selected.');
@@ -30,14 +30,11 @@ module.exports = function (RED) {
 
       const endpointConfig = schema.paths[methodName][method];
       if (!endpointConfig) {
-        return sendError(msg, `No method found by operation ${config.operation}`);
+        return sendError(
+          msg,
+          `No method found by operation ${config.operation}`
+        );
       }
-
-      console.log(endpointConfig, schema.components.schemas);
-      const validator = new OpenAPIRequestValidator({
-        ...endpointConfig,
-        schemas: schema.components.schemas,
-      });
 
       const headers = getTypedFieldValue(msg, config.headers);
       const { lToken, plToken } = getLifecycleToken(msg);
@@ -51,10 +48,15 @@ module.exports = function (RED) {
         body: getTypedFieldValue(msg, config.body) || {},
         params: getTypedFieldValue(msg, config.params) || {},
         query: getTypedFieldValue(msg, config.query) || {},
-      }
+      };
 
       if (!config.disableValidation) {
         try {
+          const validator = new OpenAPIRequestValidator({
+            ...endpointConfig,
+            schemas: schema.components.schemas,
+          });
+
           const validationResult = validator.validateRequest(request);
           if (validationResult) {
             const { status, errors = [] } = validationResult;
@@ -68,8 +70,8 @@ module.exports = function (RED) {
                   type: 'OPENAPI_REQUEST_VALIDATION_ERROR',
                   text: `[${location}.${path}] ${message}`,
                 })),
-              }
-            }
+              },
+            };
             return node.send([msg]);
           }
         } catch (e) {
@@ -81,7 +83,9 @@ module.exports = function (RED) {
       const server = schema.servers[+config.server];
       try {
         if (!server) {
-          throw new Error(`no 'server' found in servers by index ${config.server} in openapi manifest.`)
+          throw new Error(
+            `no 'server' found in servers by index ${config.server} in openapi manifest.`
+          );
         }
         let url = server.url + methodName;
         url = url.replace(/{.+}/g, (match) => {
@@ -98,17 +102,16 @@ module.exports = function (RED) {
           headers: request.headers,
           data: request.body,
           params: request.query,
-        }
-        defaultLogger.withMsg(msg)(
-          'info',
-          `OpenAPIClientReq: ${requestConfig.method} ${url}`,
-          { ...requestConfig },
-        );
+        };
+        const message = `OpenAPIClientReq: ${requestConfig.method} ${url}`;
+        const req = { ...requestConfig };
+
+        defaultLogger.withMsg(msg)('info', message, req);
         const { status, headers, data } = await axios(requestConfig);
         defaultLogger.withMsg(msg)(
           'info',
           `OpenAPIClientRes: ${requestConfig.method} ${requestConfig.url}`,
-          { status, headers, messages: data.messages },
+          { status, headers, messages: data.messages }
         );
         msg.payload = {
           status,
@@ -130,35 +133,41 @@ module.exports = function (RED) {
           // type: 'UNKNOWN_REQUEST_ERROR',
           type: 'UNDEFINED',
           message: e.message,
-        }
+        };
         const { response = {} } = e;
-        const { data = null, messages = [defaultMessage] } = response.data || {};
-        console.log(response.data, response.status, response.headers);
+        const { data = null, messages = [defaultMessage] } =
+          response.data || {};
         msg.payload = {
           status: response.status || 'UNKNOWN',
           requestConfig: {
             method,
-            url: (requestConfig && requestConfig.url) || server.url + methodName,
+            url:
+              (requestConfig && requestConfig.url) || server.url + methodName,
             body: (requestConfig && requestConfig.data) || request.body,
             query: request.query,
             params: request.params,
             headers: request.headers,
           },
-          headers: {},
+          headers: response.headers,
           body: {
             data,
             messages,
-          }
-        }
-        defaultLogger.withMsg(msg)(
-          'error',
-          `OpenAPIClientRes: ${requestConfig && requestConfig.method} ${requestConfig && requestConfig.url}`,
-          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages, response: response.data, stack: e.stack},
-        );
+          },
+        };
+        const message = `OpenAPIClientRes: ${requestConfig.method} ${requestConfig?.url}`;
+        const res = {
+          status: e.status || 'UNKNOWN',
+          ...(requestConfig || {}),
+          messages,
+          response: response.data,
+          stack: e.stack,
+        };
+
+        defaultLogger.withMsg(msg)('error', message, res);
         return node.send([msg]);
       }
-    })
+    });
   }
 
-  RED.nodes.registerType('rollun-openapi-client', openApiRed)
-}
+  RED.nodes.registerType('rollun-openapi-client', openApiRed);
+};

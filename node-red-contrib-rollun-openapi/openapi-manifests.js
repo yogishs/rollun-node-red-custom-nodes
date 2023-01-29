@@ -1,14 +1,18 @@
-const express = require("express");
-const ExpressOpenapiValidator = require("express-openapi-validator");
-const objectHash = require("object-hash");
-const openApiSchemaValidator = require("openapi-schema-validator");
-const helpers = require("./helpers");
+const express = require('express');
+const ExpressOpenapiValidator = require('express-openapi-validator');
+const objectHash = require('object-hash');
+const OpenApiSchemaValidator = require('openapi-schema-validator').default;
+const helpers = require('./helpers');
 const axios = require('axios');
-const YAML = require('yaml')
-const { defaultLogger, getLifecycleToken } = require('node-red-contrib-rollun-backend-utils');
+const YAML = require('yaml');
+const {
+  defaultLogger,
+  getLifecycleToken,
+} = require('node-red-contrib-rollun-backend-utils');
+const route = require('./route');
 
 module.exports = function register(RED) {
-  const schemaValidator = new openApiSchemaValidator.default({
+  const schemaValidator = new OpenApiSchemaValidator({
     version: 3,
   });
 
@@ -17,51 +21,56 @@ module.exports = function register(RED) {
     RED.httpNode.use(mainRouter);
   }
 
-  RED.nodes.registerType('rollun-openapi-manifest', function openapiSchemaNode(props) {
-    const _this = this;
-    RED.nodes.createNode(this, props);
-    if (props.schema == null) {
-      return;
-    }
-    const schema = props.schema;
-    const result = schemaValidator.validate(schema);
-    if (result.errors.length > 0) {
-      this.error('Invalid OpenAPI schema:');
-      result.errors.forEach(function (err) {
-        _this.error('    ', err.message);
-      });
-      return;
-    }
-    const router = express.Router();
-    const routes = [];
-    this.baseURL = props.baseURL;
-    this.schema = props.schema;
-    this.router = function (fn) {
-      routes.push(fn);
-    };
-    if (this.baseURL && this.baseURL !== '/') {
-      mainRouter.use(this.baseURL, router);
-    } else {
-      mainRouter.use(router);
-    }
-    console.log(ExpressOpenapiValidator);
-    const validator = new ExpressOpenapiValidator.OpenApiValidator({
-      apiSpec: schema,
-      validateRequests: true,
-      validateResponses: true,
-    });
+  RED.nodes.registerType(
+    'rollun-openapi-manifest',
+    function openapiSchemaNode(props) {
+      const _this = this;
+      RED.nodes.createNode(this, props);
+      if (props.schema == null) {
+        return;
+      }
+      const schema = props.schema;
+      const result = schemaValidator.validate(schema);
+      if (result.errors.length > 0) {
+        this.error('Invalid OpenAPI schema:');
+        result.errors.forEach(function (err) {
+          _this.error('    ', err.message);
+        });
+        return;
+      }
 
-    validator.install(router).then(function () {
-      routes.forEach(function (r) {
-        return r(router);
+      let linkedInNodes = [];
+      RED.nodes.eachNode((node) => {
+        if (node.type === 'rollun-openapi-in' && node.schema === _this.id) {
+          linkedInNodes.push(node);
+        }
       });
-      routes.length = 0;
+
+      const router = express.Router();
+      this.baseURL = props.baseURL;
+      this.schema = props.schema;
+      this.router = router;
+      if (this.baseURL && this.baseURL !== '/') {
+        mainRouter.use(this.baseURL, router);
+      } else {
+        mainRouter.use(router);
+      }
+
+      // router.use(
+      //   ExpressOpenapiValidator.middleware({
+      //     apiSpec: schema,
+      //     validateRequests: true,
+      //     validateResponses: true,
+      //   })
+      // );
+
       router.use(function (err, req, res, next) {
         // it's an error from the middleware
         if (err.status === 404 && req.openapi != null) {
           return next();
         }
-        const errors = err.errors || [];
+        console.log('openapi fallback err handler', err);
+        const errors = err.errors || [{ path: 'root', message: err.message }];
         const formatted = errors.map(({ path, message }) => ({
           level: 'error',
           // type: path.includes('response')
@@ -81,19 +90,19 @@ module.exports = function register(RED) {
         defaultLogger.withMsg({ req })(
           'error',
           `OpenAPIServerRes: ${req.method} ${req.path}`,
-          { status: 500, messages: formatted, err: err.stack },
+          { status: 500, messages: formatted, err: err.stack }
         );
       });
-    });
-    this.on('close', function () {
-      router.stack.length = 0;
-      mainRouter.stack.forEach(function (route, i, routes) {
-        if (route.handle === router) {
-          routes.splice(i, 1);
-        }
+      this.on('close', function () {
+        router.stack.length = 0;
+        mainRouter.stack.forEach(function (route, i, routes) {
+          if (route.handle === router) {
+            routes.splice(i, 1);
+          }
+        });
       });
-    });
-  });
+    }
+  );
   if (RED.httpAdmin != null) {
     RED.httpAdmin.get('/openapi/:id/paths', function (req, res) {
       const schema = helpers.findSchema(RED, req.params.id);
@@ -145,7 +154,9 @@ module.exports = function register(RED) {
         const schema = parseManifest(data);
         const errors = schemaValidator.validate(schema);
         if (errors.length > 0) {
-          throw new Error(`manifest validation error: ${JSON.stringify(errors)}`)
+          throw new Error(
+            `manifest validation error: ${JSON.stringify(errors)}`
+          );
         }
         return res.send(schema);
       } catch (e) {

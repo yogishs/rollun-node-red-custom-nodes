@@ -1,9 +1,14 @@
-"use strict";
-const queue = require("./queue");
-const { getLifecycleToken, resolvePayload, defaultLogger } = require('node-red-contrib-rollun-backend-utils');
+'use strict';
+const queue = require('./queue');
+const {
+  getLifecycleToken,
+  resolvePayload,
+  defaultLogger,
+} = require('node-red-contrib-rollun-backend-utils');
 
-function getStatusCodeFromMessages(msgs = []) {
-  return msgs.some(({ level }) => level === 'error') ? 500 : 200;
+function getStatusCodeFromMessages(messages) {
+  const errorExists = messages.some((m) => m.level === 'error');
+  return errorExists ? 500 : 200;
 }
 
 module.exports = function register(RED) {
@@ -20,33 +25,48 @@ module.exports = function register(RED) {
           return;
         }
 
-        const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
+        const {
+          data,
+          messages = [],
+          statusCode,
+        } = resolvePayload(msg, {
+          data: props.data,
+          messages: props.messages,
+          statusCode: props.statusCode,
+        });
 
         let msgs = messages;
         if (!props.disableGenerationOfExceptionMessage && msg.error) {
-          const { message = 'Unknown Error', source: { id, type } = { id: 'unknown', type: 'unknown' } } = msg.error;
-          msgs = [{
-            level: 'error',
-            // type: 'NODE_RED_NODE_EXCEPTION',
-            type: 'UNDEFINED',
-            text: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
-          }].concat(msgs);
+          const {
+            message = 'Unknown Error',
+            source: { id, type } = { id: 'unknown', type: 'unknown' },
+          } = msg.error;
+          msgs = [
+            {
+              level: 'error',
+              // type: 'NODE_RED_NODE_EXCEPTION',
+              type: 'UNDEFINED',
+              text: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
+            },
+          ].concat(msgs);
         }
 
-        queue.dequeue(lToken, function (req, res, __) {
-          const statusCode = getStatusCodeFromMessages(msgs);
+        const code = statusCode || getStatusCodeFromMessages(messages);
 
+        queue.dequeue(lToken, function (req, res, __) {
           res.set('lifecycle_token', lToken);
           res.set('parent_lifecycle_token', plToken || '');
-          res
-            .status(statusCode)
-            .send({ data: statusCode === 200 && data ? data : null, messages: msgs });
+
+          res.status(code).send({
+            data,
+            messages: msgs,
+          });
           res.on('finish', () => {
             if (!res.errorLogged) {
               defaultLogger.withMsg(msg)(
                 'info',
                 `OpenAPIServerRes: ${req.method} ${req.path}`,
-                { status: statusCode, messages: msgs },
+                { status: code, messages: msgs }
               );
             }
           });
