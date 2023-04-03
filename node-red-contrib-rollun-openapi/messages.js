@@ -3,7 +3,7 @@ const _ = require('lodash');
 const { parseTypedInput, resolvePayload } = require('node-red-contrib-rollun-backend-utils');
 
 module.exports = function register(RED) {
-  RED.nodes.registerType('rollun-openapi-messages', function openapiOutNode(props) {
+  RED.nodes.registerType('openapi-messages', function openapiOutNode(props) {
     const _this = this;
     RED.nodes.createNode(this, props);
 

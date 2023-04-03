@@ -4,8 +4,8 @@
       return typeof v === 'string';
     }
 
-    RED.nodes.registerType('rollun-openapi-out', {
-      category: 'Rollun Openapi',
+    RED.nodes.registerType('openapi-out', {
+      category: 'Openapi',
       defaults: {
         name: {
           value: '',
@@ -55,7 +55,7 @@
   })();
 </script>
 
-<script type="text/x-red" data-template-name="rollun-openapi-out">
+<script type="text/x-red" data-template-name="openapi-out">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
@@ -69,7 +69,7 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="rollun-openapi-out">
+<script type="text/x-red" data-help-name="openapi-out">
     OpenAPI Out node
 
     To end request that you received with OpenAPI in node, end your pipeline with this node.

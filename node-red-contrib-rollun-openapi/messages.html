@@ -4,8 +4,8 @@
       return typeof v === 'string';
     }
 
-    RED.nodes.registerType('rollun-openapi-messages', {
-      category: 'Rollun Openapi',
+    RED.nodes.registerType('openapi-messages', {
+      category: 'Openapi',
       defaults: {
         name: {
           value: '',
@@ -54,7 +54,7 @@
   })();
 </script>
 
-<script type="text/x-red" data-template-name="rollun-openapi-messages">
+<script type="text/x-red" data-template-name="openapi-messages">
    <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
@@ -80,5 +80,5 @@
     <div class="form-row" id="text"></div>
 </script>
 
-<script type="text/x-red" data-help-name="rollun-openapi-messages">
+<script type="text/x-red" data-help-name="openapi-messages">
 </script>

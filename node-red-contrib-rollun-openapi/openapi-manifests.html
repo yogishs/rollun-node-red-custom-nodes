@@ -28,7 +28,7 @@
       return url.pathname;
     }
 
-    RED.nodes.registerType('rollun-openapi-manifest', {
+    RED.nodes.registerType('openapi-manifest', {
       category: 'config',
       defaults: {
         name: {
@@ -204,7 +204,7 @@
 
         fetchFromUrlButton.click(() => {
           const url = inputUrl.val();
-          fetch('/openapi/fetch?url=' + encodeURIComponent(url))
+          fetch('openapi/fetch?url=' + encodeURIComponent(url))
             .then(res => res.json())
             .then(manifest => handleNewManifest(manifest))
             .catch(err => {
@@ -237,7 +237,7 @@
   })();
 </script>
 
-<script type="text/x-red" data-template-name="rollun-openapi-manifest">
+<script type="text/x-red" data-template-name="openapi-manifest">
 <!--    <div class="form-row">-->
 <!--        <label for="schema-file-select-button"><i class="fa fa-upload"></i> Upload: </label>-->
 <!--        <a class="red-ui-button" id="schema-file-select-button">-->
@@ -269,7 +269,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="rollun-openapi-manifest">
+<script type="text/x-red" data-help-name="openapi-manifest">
     OpenAPI manifest.
 
     Enter a link and press fetch to save manifest. Manifest is not updated automatically if it is changed.

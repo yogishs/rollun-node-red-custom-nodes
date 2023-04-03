@@ -12,7 +12,7 @@ function getStatusCodeFromMessages(messages) {
 }
 
 module.exports = function register(RED) {
-  RED.nodes.registerType('rollun-openapi-out', function openapiOutNode(props) {
+  RED.nodes.registerType('openapi-out', function openapiOutNode(props) {
     const _this = this;
     RED.nodes.createNode(this, props);
 

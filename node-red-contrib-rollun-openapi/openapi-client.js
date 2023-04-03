@@ -169,5 +169,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType('rollun-openapi-client', openApiRed);
+  RED.nodes.registerType('openapi-client', openApiRed);
 };

@@ -3,7 +3,7 @@ const helpers = require('./helpers');
 const route = require('./route');
 
 module.exports = function register(RED) {
-  RED.nodes.registerType('rollun-openapi-in', function openapiNode(props) {
+  RED.nodes.registerType('openapi-in', function openapiNode(props) {
     var _this = this;
     RED.nodes.createNode(this, props);
 

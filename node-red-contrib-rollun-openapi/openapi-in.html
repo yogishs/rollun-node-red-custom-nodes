@@ -15,8 +15,8 @@
       return `${method} ${path}`;
     }
 
-    RED.nodes.registerType('rollun-openapi-in', {
-      category: 'Rollun Openapi',
+    RED.nodes.registerType('openapi-in', {
+      category: 'Openapi',
       defaults: {
         name: {
           value: '',
@@ -26,7 +26,7 @@
         schema: {
           value: '',
           required: true,
-          type: 'rollun-openapi-manifest',
+          type: 'openapi-manifest',
         },
         operation: {
           value: '',
@@ -167,7 +167,7 @@
   })();
 </script>
 
-<script type="text/x-red" data-template-name="rollun-openapi-in">
+<script type="text/x-red" data-template-name="openapi-in">
     <div class="form-row">
         <label for="node-input-schema"><i class="fa fa-book"></i> <span>Schema:</span></label>
         <input type="text" id="node-input-schema">
@@ -184,7 +184,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="rollun-openapi-in">
+<script type="text/x-red" data-help-name="openapi-in">
     OpenAPI In node
 
     Select an operation and node will listen http requests on this path

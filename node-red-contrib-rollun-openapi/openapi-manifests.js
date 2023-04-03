@@ -20,7 +20,7 @@ async function installHandlerAfterRouters(nodeId, RED, router, handler) {
 
   let inNodesIds = [];
   RED.nodes.eachNode((node) => {
-    if (node.type === 'rollun-openapi-in') {
+    if (node.type === 'openapi-in') {
       inNodesIds.push(node.id);
     }
   });
@@ -53,7 +53,7 @@ module.exports = function register(RED) {
   }
 
   RED.nodes.registerType(
-    'rollun-openapi-manifest',
+    'openapi-manifest',
     function openapiSchemaNode(props) {
       const _this = this;
       RED.nodes.createNode(this, props);
@@ -72,7 +72,7 @@ module.exports = function register(RED) {
 
       let linkedInNodes = [];
       RED.nodes.eachNode((node) => {
-        if (node.type === 'rollun-openapi-in' && node.schema === _this.id) {
+        if (node.type === 'openapi-in' && node.schema === _this.id) {
           linkedInNodes.push(node);
         }
       });

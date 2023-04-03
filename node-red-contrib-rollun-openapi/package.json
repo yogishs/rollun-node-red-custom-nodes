@@ -1,5 +1,5 @@
 {
-  "name": "node-red-contrib-rollun-openapi",
+  "name": "node-red-contrib-openapi",
   "version": "2.0.3",
   "description": "",
   "dependencies": {
@@ -20,11 +20,11 @@
   "node-red": {
     "nodes": {
       "1-common": "1-common.js",
-      "rollun-openapi-client": "openapi-client.js",
-      "rollun-openapi-messages": "messages.js",
-      "rollun-openapi-manifest": "openapi-manifests.js",
-      "rollun-openapi-in": "openapi-in.js",
-      "rollun-openapi-out": "openapi-out.js"
+      "openapi-client": "openapi-client.js",
+      "openapi-messages": "messages.js",
+      "openapi-manifest": "openapi-manifests.js",
+      "openapi-in": "openapi-in.js",
+      "openapi-out": "openapi-out.js"
     }
   },
   "author": "",
