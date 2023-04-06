@@ -54,7 +54,7 @@
         const $schema = $('#node-input-schema');
         const $operation = $('#node-input-operation');
         const renderSwaggerUi = (link) => {
-          const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+          const theLink = `/api-docs?url=${link}`;
           $('#swagger-ui').html(`
             <div style="width: 100%">
               <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
