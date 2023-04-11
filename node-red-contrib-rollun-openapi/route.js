@@ -43,6 +43,7 @@ function openApiRequestHandlerFactory(RED, node) {
     );
     const msg = {
       _msgid: msgid,
+      payload: req.body,
       openapiRequest: {
         lToken,
         plToken,
@@ -52,7 +53,6 @@ function openApiRequestHandlerFactory(RED, node) {
         params: req.params,
         path: req.path,
         url: req.url,
-        payload: req.body,
         query: req.query,
       },
     };
