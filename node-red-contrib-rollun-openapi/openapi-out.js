@@ -61,7 +61,7 @@ module.exports = function register(RED) {
           res
             .status(code)
             .send(
-              data && msgs.length > 0 ? { data, messages: msgs } : undefined
+              { data, messages: msgs }
             );
           res.on('finish', () => {
             if (!res.errorLogged) {
